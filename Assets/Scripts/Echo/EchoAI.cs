@@ -14,6 +14,7 @@ public class EchoAI : MonoBehaviour
     public NavMeshAgent agent;
     public Transform player;
     public Transform[] patrolPoints;
+    public Material echoMaterial;
 
     [Header("Detection")]
     public float detectionRange = 10f;
@@ -25,6 +26,11 @@ public class EchoAI : MonoBehaviour
 
     [Header("Investigation")]
     public float investigationTime = 3f;
+
+    [Header("Shader")]
+    public float patrolGlow = 0.7f;
+    public float investigateGlow = 1.5f;
+    public float huntGlow = 3f;
 
     public EchoState currentState = EchoState.Patrol;
 
@@ -56,6 +62,8 @@ public class EchoAI : MonoBehaviour
                 Hunt();
                 break;
         }
+
+        UpdateShader();
     }
 
     void Patrol()
@@ -154,5 +162,26 @@ public class EchoAI : MonoBehaviour
 
         currentState = EchoState.Investigate;
         agent.SetDestination(investigationPosition);
+    }
+
+    void UpdateShader()
+    {
+        if (echoMaterial == null)
+            return;
+
+        switch (currentState)
+        {
+            case EchoState.Patrol:
+                echoMaterial.SetFloat("_GlowStrength", patrolGlow);
+                break;
+
+            case EchoState.Investigate:
+                echoMaterial.SetFloat("_GlowStrength", investigateGlow);
+                break;
+
+            case EchoState.Hunt:
+                echoMaterial.SetFloat("_GlowStrength", huntGlow);
+                break;
+        }
     }
 }
