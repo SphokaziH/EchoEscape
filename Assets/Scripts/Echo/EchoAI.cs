@@ -15,6 +15,7 @@ public class EchoAI : MonoBehaviour
     public Transform player;
     public Transform[] patrolPoints;
     public Material echoMaterial;
+    public Animator animator;
 
     [Header("Detection")]
     public float detectionRange = 10f;
@@ -63,6 +64,7 @@ public class EchoAI : MonoBehaviour
                 break;
         }
 
+        UpdateAnimation();
         UpdateShader();
     }
 
@@ -162,6 +164,16 @@ public class EchoAI : MonoBehaviour
 
         currentState = EchoState.Investigate;
         agent.SetDestination(investigationPosition);
+    }
+
+    void UpdateAnimation()
+    {
+        if (animator == null || agent == null)
+            return;
+
+        bool isWalking = agent.velocity.magnitude > 0.1f;
+
+        animator.SetBool("IsWalking", isWalking);
     }
 
     void UpdateShader()
