@@ -49,6 +49,7 @@ public class EchoAI : MonoBehaviour
 
     void Update()
     {
+
         switch (currentState)
         {
             case EchoState.Patrol:
@@ -154,6 +155,25 @@ public class EchoAI : MonoBehaviour
         if (currentPatrolPoint >= patrolPoints.Length)
         {
             currentPatrolPoint = 0;
+        }
+    }
+
+    public void HearNoise(Vector3 position, float noiseRadius)
+    {
+        float distanceToNoise = Vector3.Distance(transform.position, position);
+
+        Debug.Log("Distance to noise: " + distanceToNoise +
+                  " | Noise radius: " + noiseRadius);
+
+        if (distanceToNoise <= noiseRadius)
+        {
+            Debug.Log("Echo heard the noise");
+
+            Investigate(position);
+        }
+        else
+        {
+            Debug.Log("Echo did NOT hear the noise");
         }
     }
 
