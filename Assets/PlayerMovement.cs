@@ -84,7 +84,7 @@ public class PlayerMovement : MonoBehaviour{
         }
         float x = Input.GetAxis("Horizontal");
         float z = Input.GetAxis("Vertical");
-        bool isMoving = Mathf.Abs(horizontal) > 0.1f || Mathf.Abs(vertical) > 0.1f;
+        bool isMoving = Mathf.Abs(x) > 0.1f || Mathf.Abs(z) > 0.1f;
         bool isSprinting = Input.GetKey(sprintKey) && currentStamina > 0 && isMoving;
 
         // restricts the player to only move in the direction it is pointing at
