@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 4ba2cfbe483da89499a9370715649ee0
+guid: 8a6766b5619502f459fafcfdc608723a
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -97,13 +97,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Light_0
+      name: Wire_start
       rect:
         serializedVersion: 2
-        x: 1
-        y: 1
-        width: 47
-        height: 26
+        x: 0
+        y: 0
+        width: 56
+        height: 28
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -112,8 +112,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: fbabf328d7b63c649828cf3dc2a22afd
-      internalID: 343385567
+      spriteID: d329b8486351d5a4d92788c944400d9b
+      internalID: -1747910750
       vertices: []
       indices: 
       edges: []
@@ -122,7 +122,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 94cbeb8894faa7e4cadcb1135db3ef75
+    spriteID: fec768bbd24f1394e9911034191b5655
     internalID: 0
     vertices: []
     indices: 
@@ -132,7 +132,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Light_0: 343385567
+      Wire_start: -1747910750
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
