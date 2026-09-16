@@ -15,6 +15,7 @@ public class ReadmeEditor : Editor
     static string s_ReadmeSourceDirectory = "Assets/TutorialInfo";
 
     const float k_Space = 16f;
+    private const Color blue = Color.blue;
 
     static ReadmeEditor()
     {
@@ -216,7 +217,7 @@ public class ReadmeEditor : Editor
         m_LinkStyle.wordWrap = false;
 
         // Match selection color which works nicely for both light and dark skins
-        m_LinkStyle.normal.textColor = new Color(0x00 / 255f, 0x78 / 255f, 0xDA / 255f, 1f);
+        m_LinkStyle.normal.textColor = new UnityEngine.Color(0x00 / 255f, 0x78 / 255f, 0xDA / 255f, 1f);
         m_LinkStyle.stretchWidth = false;
 
         m_ButtonStyle = new GUIStyle(EditorStyles.miniButton);
@@ -232,7 +233,7 @@ public class ReadmeEditor : Editor
         Handles.BeginGUI();
         Handles.color = LinkStyle.normal.textColor;
         Handles.DrawLine(new Vector3(position.xMin, position.yMax), new Vector3(position.xMax, position.yMax));
-        Handles.color = Color.white;
+        Handles.color = UnityEngine.Color.blue;
         Handles.EndGUI();
 
         EditorGUIUtility.AddCursorRect(position, MouseCursor.Link);
