@@ -1,18 +1,10 @@
 using UnityEngine;
 
-public class PowerNode : MonoBehaviour
+public class PowerNode : Interactable
 {
     private bool collected = false;
 
-    void OnTriggerStay(Collider other)
-    {
-        if (other.CompareTag("Player") && Input.GetKeyDown(KeyCode.E))
-        {
-            Collect();
-        }
-    }
-
-    void Collect()
+    public override void Interact()
     {
         if (collected)
             return;

@@ -472,7 +472,7 @@ GameObject:
   - component: {fileID: 30743748}
   - component: {fileID: 30743747}
   - component: {fileID: 30743746}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: button (5)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -995,7 +995,7 @@ GameObject:
   - component: {fileID: 81515181}
   - component: {fileID: 81515183}
   - component: {fileID: 81515182}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Text (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1486,7 +1486,7 @@ GameObject:
   - component: {fileID: 197869505}
   - component: {fileID: 197869504}
   - component: {fileID: 197869503}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: button (8)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2277,7 +2277,7 @@ GameObject:
   - component: {fileID: 288343603}
   - component: {fileID: 288343605}
   - component: {fileID: 288343604}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Text (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2682,7 +2682,7 @@ GameObject:
   - component: {fileID: 327875735}
   - component: {fileID: 327875737}
   - component: {fileID: 327875736}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Text (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3603,6 +3603,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1898527401}
     m_Modifications:
+    - target: {fileID: 731129937607808379, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 3286549284555806632, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 4250122439814871208, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 5298561602987052582, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
       propertyPath: m_Color.b
       value: 0
@@ -3610,6 +3622,10 @@ PrefabInstance:
     - target: {fileID: 5298561602987052582, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
       propertyPath: m_Color.r
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5439531195156529129, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 5799851143366763432, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
       propertyPath: m_LocalPosition.x
@@ -3651,6 +3667,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5804526191390479846, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 7215600932217419606, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
       propertyPath: m_Color.b
       value: 0
@@ -3662,6 +3682,14 @@ PrefabInstance:
     - target: {fileID: 8520212097135039647, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
       propertyPath: m_Name
       value: GreenWire
+      objectReference: {fileID: 0}
+    - target: {fileID: 8520212097135039647, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 9196283508732333079, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -3679,7 +3707,7 @@ GameObject:
   - component: {fileID: 422905992}
   - component: {fileID: 422905994}
   - component: {fileID: 422905993}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Text (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4287,7 +4315,7 @@ GameObject:
   - component: {fileID: 535676601}
   - component: {fileID: 535676600}
   - component: {fileID: 535676599}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PowerNode_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4509,7 +4537,7 @@ GameObject:
   m_Component:
   - component: {fileID: 542628137}
   - component: {fileID: 542628138}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: RightSide
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5009,7 +5037,7 @@ GameObject:
   - component: {fileID: 594680449}
   - component: {fileID: 594680448}
   - component: {fileID: 594680447}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PowerNode_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5122,6 +5150,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 542628137}
     m_Modifications:
+    - target: {fileID: 731129937607808379, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 3286549284555806632, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 4250122439814871208, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 5298561602987052582, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
       propertyPath: m_Color.b
       value: 0
@@ -5129,6 +5169,10 @@ PrefabInstance:
     - target: {fileID: 5298561602987052582, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
       propertyPath: m_Color.r
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5439531195156529129, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 5439531195156529129, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
       propertyPath: m_IsActive
@@ -5174,6 +5218,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5804526191390479846, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 7215600932217419606, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
       propertyPath: m_Color.b
       value: 0
@@ -5185,6 +5233,14 @@ PrefabInstance:
     - target: {fileID: 8520212097135039647, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
       propertyPath: m_Name
       value: GreenWire
+      objectReference: {fileID: 0}
+    - target: {fileID: 8520212097135039647, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 9196283508732333079, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -5630,6 +5686,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 542628137}
     m_Modifications:
+    - target: {fileID: 731129937607808379, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 3286549284555806632, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 4250122439814871208, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 5298561602987052582, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
       propertyPath: m_Color.b
       value: 0.015686275
@@ -5641,6 +5709,10 @@ PrefabInstance:
     - target: {fileID: 5298561602987052582, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
       propertyPath: m_Color.r
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5439531195156529129, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 5439531195156529129, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
       propertyPath: m_IsActive
@@ -5686,6 +5758,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5804526191390479846, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 7215600932217419606, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
       propertyPath: m_Color.b
       value: 0.015686275
@@ -5701,6 +5777,14 @@ PrefabInstance:
     - target: {fileID: 8520212097135039647, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
       propertyPath: m_Name
       value: YellowWire
+      objectReference: {fileID: 0}
+    - target: {fileID: 8520212097135039647, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 9196283508732333079, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -5719,7 +5803,7 @@ GameObject:
   - component: {fileID: 734795887}
   - component: {fileID: 734795886}
   - component: {fileID: 734795885}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PowerNode_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5830,7 +5914,7 @@ GameObject:
   - component: {fileID: 736568642}
   - component: {fileID: 736568644}
   - component: {fileID: 736568643}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Text (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7116,7 +7200,7 @@ GameObject:
   - component: {fileID: 890996156}
   - component: {fileID: 890996155}
   - component: {fileID: 890996154}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: button (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7257,7 +7341,7 @@ GameObject:
   - component: {fileID: 919382686}
   - component: {fileID: 919382685}
   - component: {fileID: 919382684}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Container
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7370,7 +7454,7 @@ GameObject:
   - component: {fileID: 961464240}
   - component: {fileID: 961464239}
   - component: {fileID: 961464238}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: button (7)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9288,7 +9372,7 @@ GameObject:
   - component: {fileID: 1307828162}
   - component: {fileID: 1307828161}
   - component: {fileID: 1307828160}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: button (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9428,7 +9512,7 @@ GameObject:
   - component: {fileID: 1315557639}
   - component: {fileID: 1315557641}
   - component: {fileID: 1315557640}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Text (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9887,7 +9971,7 @@ GameObject:
   - component: {fileID: 1420002727}
   - component: {fileID: 1420002726}
   - component: {fileID: 1420002725}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: button (9)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -10859,7 +10943,7 @@ GameObject:
   - component: {fileID: 1515457979}
   - component: {fileID: 1515457981}
   - component: {fileID: 1515457980}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Text (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -11299,7 +11383,7 @@ GameObject:
   - component: {fileID: 1570714098}
   - component: {fileID: 1570714097}
   - component: {fileID: 1570714096}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: button (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -11850,6 +11934,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 542628137}
     m_Modifications:
+    - target: {fileID: 731129937607808379, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 3286549284555806632, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 4250122439814871208, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 5298561602987052582, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
       propertyPath: m_Color.b
       value: 1
@@ -11861,6 +11957,10 @@ PrefabInstance:
     - target: {fileID: 5298561602987052582, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
       propertyPath: m_Color.r
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5439531195156529129, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 5439531195156529129, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
       propertyPath: m_IsActive
@@ -11906,6 +12006,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5804526191390479846, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 7215600932217419606, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
       propertyPath: m_Color.b
       value: 1
@@ -11921,6 +12025,14 @@ PrefabInstance:
     - target: {fileID: 8520212097135039647, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
       propertyPath: m_Name
       value: BlueWire
+      objectReference: {fileID: 0}
+    - target: {fileID: 8520212097135039647, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 9196283508732333079, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -12200,7 +12312,7 @@ GameObject:
   - component: {fileID: 1675733161}
   - component: {fileID: 1675733160}
   - component: {fileID: 1675733159}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: button
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12337,6 +12449,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1898527401}
     m_Modifications:
+    - target: {fileID: 731129937607808379, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 3286549284555806632, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 4250122439814871208, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 5298561602987052582, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
       propertyPath: m_Color.b
       value: 1
@@ -12348,6 +12472,10 @@ PrefabInstance:
     - target: {fileID: 5298561602987052582, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
       propertyPath: m_Color.r
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5439531195156529129, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 5799851143366763432, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
       propertyPath: m_LocalPosition.x
@@ -12389,6 +12517,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5804526191390479846, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 7215600932217419606, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
       propertyPath: m_Color.b
       value: 1
@@ -12404,6 +12536,14 @@ PrefabInstance:
     - target: {fileID: 8520212097135039647, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
       propertyPath: m_Name
       value: BlueWire
+      objectReference: {fileID: 0}
+    - target: {fileID: 8520212097135039647, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 9196283508732333079, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -12483,6 +12623,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 542628137}
     m_Modifications:
+    - target: {fileID: 731129937607808379, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 3286549284555806632, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 4250122439814871208, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 5298561602987052582, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
       propertyPath: m_Color.b
       value: 0
@@ -12494,6 +12646,10 @@ PrefabInstance:
     - target: {fileID: 5298561602987052582, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
       propertyPath: m_Color.r
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5439531195156529129, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 5439531195156529129, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
       propertyPath: m_IsActive
@@ -12539,6 +12695,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5804526191390479846, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 7215600932217419606, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
       propertyPath: m_Color.b
       value: 0
@@ -12554,6 +12714,14 @@ PrefabInstance:
     - target: {fileID: 8520212097135039647, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
       propertyPath: m_Name
       value: RedWire
+      objectReference: {fileID: 0}
+    - target: {fileID: 8520212097135039647, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 9196283508732333079, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -12729,7 +12897,7 @@ GameObject:
   - component: {fileID: 1783570059}
   - component: {fileID: 1783570061}
   - component: {fileID: 1783570060}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Text (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12912,6 +13080,7 @@ GameObject:
   - component: {fileID: 1792491584}
   - component: {fileID: 1792491583}
   - component: {fileID: 1792491582}
+  - component: {fileID: 1792491586}
   m_Layer: 0
   m_Name: PlayerCamera
   m_TagString: Untagged
@@ -13049,6 +13218,22 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
+--- !u!114 &1792491586
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1792491580}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eda465847e7c3f1439aace151108708f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  interactDistance: 3
+  interactLayer:
+    serializedVersion: 2
+    m_Bits: 64
 --- !u!1 &1793990137
 GameObject:
   m_ObjectHideFlags: 0
@@ -13583,7 +13768,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1898527401}
   - component: {fileID: 1898527402}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: leftSide
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -13632,7 +13817,7 @@ GameObject:
   - component: {fileID: 1904790180}
   - component: {fileID: 1904790182}
   - component: {fileID: 1904790181}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Text (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -13810,6 +13995,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1898527401}
     m_Modifications:
+    - target: {fileID: 731129937607808379, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 3286549284555806632, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 4250122439814871208, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 5298561602987052582, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
       propertyPath: m_Color.b
       value: 0.015686275
@@ -13821,6 +14018,10 @@ PrefabInstance:
     - target: {fileID: 5298561602987052582, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
       propertyPath: m_Color.r
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5439531195156529129, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 5799851143366763432, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
       propertyPath: m_LocalPosition.x
@@ -13862,6 +14063,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5804526191390479846, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 7215600932217419606, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
       propertyPath: m_Color.b
       value: 0.015686275
@@ -13877,6 +14082,14 @@ PrefabInstance:
     - target: {fileID: 8520212097135039647, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
       propertyPath: m_Name
       value: YellowWire
+      objectReference: {fileID: 0}
+    - target: {fileID: 8520212097135039647, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 9196283508732333079, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -14006,7 +14219,7 @@ GameObject:
   - component: {fileID: 1946489011}
   - component: {fileID: 1946489013}
   - component: {fileID: 1946489012}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Text (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -14301,7 +14514,7 @@ GameObject:
   - component: {fileID: 1952714461}
   - component: {fileID: 1952714460}
   - component: {fileID: 1952714459}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: button (4)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -14850,7 +15063,7 @@ GameObject:
   - component: {fileID: 2030293339}
   - component: {fileID: 2030293338}
   - component: {fileID: 2030293337}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: button (6)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -15056,7 +15269,7 @@ GameObject:
   - component: {fileID: 2050273389}
   - component: {fileID: 2050273390}
   - component: {fileID: 2050273391}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Keypad
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -15550,6 +15763,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1898527401}
     m_Modifications:
+    - target: {fileID: 731129937607808379, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 3286549284555806632, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 4250122439814871208, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 5298561602987052582, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
       propertyPath: m_Color.b
       value: 0
@@ -15561,6 +15786,10 @@ PrefabInstance:
     - target: {fileID: 5298561602987052582, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
       propertyPath: m_Color.r
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5439531195156529129, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 5799851143366763432, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
       propertyPath: m_LocalPosition.x
@@ -15602,6 +15831,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5804526191390479846, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 7215600932217419606, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
       propertyPath: m_Color.b
       value: 0
@@ -15617,6 +15850,14 @@ PrefabInstance:
     - target: {fileID: 8520212097135039647, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
       propertyPath: m_Name
       value: RedWire
+      objectReference: {fileID: 0}
+    - target: {fileID: 8520212097135039647, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 9196283508732333079, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

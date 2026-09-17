@@ -27,11 +27,10 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    void ActivateGenerator()
+    public void ActivateGenerator()
     {
         generatorActivated = true;
-        elevatorUnlocked = true;
 
-        Debug.Log("Generator activated! Elevator unlocked.");
+        Debug.Log("Facility power restored.");
     }
 }
