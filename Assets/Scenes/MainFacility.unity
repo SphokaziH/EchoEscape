@@ -1821,8 +1821,16 @@ PrefabInstance:
       value: 1.2
       objectReference: {fileID: 0}
     - target: {fileID: 8894602587366163917, guid: 7cbe8d50075a8274f8913cc5881d1b3f, type: 3}
+      propertyPath: investigationTime
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 8894602587366163917, guid: 7cbe8d50075a8274f8913cc5881d1b3f, type: 3}
+      propertyPath: huntNoiseThreshold
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 8894602587366163917, guid: 7cbe8d50075a8274f8913cc5881d1b3f, type: 3}
       propertyPath: closeRangeDetection
-      value: 5
+      value: 1.5
       objectReference: {fileID: 0}
     - target: {fileID: 8894602587366163917, guid: 7cbe8d50075a8274f8913cc5881d1b3f, type: 3}
       propertyPath: patrolPoints.Array.size
