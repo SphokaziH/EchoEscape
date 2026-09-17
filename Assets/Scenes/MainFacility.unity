@@ -10165,7 +10165,7 @@ CharacterController:
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 4294967295
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -10207,7 +10207,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1426038481}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7bd9af1cf6f222242be24838bb46f899, type: 3}
+  m_Script: {fileID: 11500000, guid: 4c929d8fc722cec4f9c1758663ce1b4c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
   controller: {fileID: 1426038483}
@@ -13059,7 +13059,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1792491580}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 80ff57707ba6f8f4b8c2f2aa5cd0807e, type: 3}
+  m_Script: {fileID: 11500000, guid: 599e6b977644cf445919bc17f08239f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MouseLook
   mouseSensitivity: 100
