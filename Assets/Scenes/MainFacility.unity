@@ -841,7 +841,8 @@ GameObject:
   - component: {fileID: 42123254}
   - component: {fileID: 42123253}
   - component: {fileID: 42123252}
-  m_Layer: 0
+  - component: {fileID: 42123256}
+  m_Layer: 6
   m_Name: Elevator Door
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -941,6 +942,18 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 42123250}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &42123256
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 42123250}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e7085ec691238e34daf05827f2457eae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Elevator
 --- !u!1 &75552662
 GameObject:
   m_ObjectHideFlags: 0
@@ -1286,7 +1299,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 103821789}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: GameplayMarkers
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3446,6 +3459,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 408205894}
+  - component: {fileID: 408205895}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -3468,6 +3482,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &408205895
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 408205893}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f41b6c268a7a554a9d70b8a65a2515e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameManager
+  powerNodesCollected: 0
+  totalPowerNodes: 3
+  generatorActivated: 0
+  elevatorUnlocked: 0
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0
@@ -4315,6 +4345,7 @@ GameObject:
   - component: {fileID: 535676601}
   - component: {fileID: 535676600}
   - component: {fileID: 535676599}
+  - component: {fileID: 535676602}
   m_Layer: 6
   m_Name: PowerNode_1
   m_TagString: Untagged
@@ -4415,6 +4446,18 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 535676597}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &535676602
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 535676597}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8627c90988fe5fe4baae5426c119f680, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PowerNode
 --- !u!1 &536944084
 GameObject:
   m_ObjectHideFlags: 0
@@ -4811,7 +4854,8 @@ GameObject:
   - component: {fileID: 575913862}
   - component: {fileID: 575913861}
   - component: {fileID: 575913860}
-  m_Layer: 0
+  - component: {fileID: 575913864}
+  m_Layer: 6
   m_Name: Generator
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4911,6 +4955,18 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 575913858}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &575913864
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 575913858}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b3c4fea679925ef41a7d729c63c734a2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Generator
 --- !u!1 &581767973
 GameObject:
   m_ObjectHideFlags: 0
@@ -5037,6 +5093,7 @@ GameObject:
   - component: {fileID: 594680449}
   - component: {fileID: 594680448}
   - component: {fileID: 594680447}
+  - component: {fileID: 594680450}
   m_Layer: 6
   m_Name: PowerNode_3
   m_TagString: Untagged
@@ -5137,6 +5194,18 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 594680445}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &594680450
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 594680445}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8627c90988fe5fe4baae5426c119f680, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PowerNode
 --- !u!4 &607980657 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5799851143366763432, guid: 2b7f7445a842aa44fb472b7c310d0383, type: 3}
@@ -5803,6 +5872,7 @@ GameObject:
   - component: {fileID: 734795887}
   - component: {fileID: 734795886}
   - component: {fileID: 734795885}
+  - component: {fileID: 734795888}
   m_Layer: 6
   m_Name: PowerNode_2
   m_TagString: Untagged
@@ -5903,6 +5973,18 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 734795883}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &734795888
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 734795883}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8627c90988fe5fe4baae5426c119f680, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PowerNode
 --- !u!1 &736568641
 GameObject:
   m_ObjectHideFlags: 0
@@ -9936,7 +10018,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1391375754}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: GroundCheck
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -10110,7 +10192,9 @@ GameObject:
   m_Component:
   - component: {fileID: 1426038484}
   - component: {fileID: 1426038483}
-  - component: {fileID: 1426038485}
+  - component: {fileID: 1426038486}
+  - component: {fileID: 1426038487}
+  - component: {fileID: 1426038488}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -10161,7 +10245,7 @@ Transform:
   - {fileID: 1792491581}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1426038485
+--- !u!114 &1426038486
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -10170,16 +10254,30 @@ MonoBehaviour:
   m_GameObject: {fileID: 1426038481}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4c929d8fc722cec4f9c1758663ce1b4c, type: 3}
+  m_Script: {fileID: 11500000, guid: 87fdd22f6735b0d4cb1e265eaf1f5020, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerInteraction
+  interactRange: 4
+  interactKey: 101
+--- !u!114 &1426038487
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1426038481}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e22cd849a45e1b5429fc32eff347b77a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
   controller: {fileID: 1426038483}
   speed: 12
   gravity: -9.8
   jumpHeight: 3
-  walkSpeed: 4
-  sprintSpeed: 7
-  crouchSpeed: 2.5
+  walkSpeed: 7
+  sprintSpeed: 10
+  crouchSpeed: 5.6
   crouchHeight: 1.2
   maxStamina: 100
   currentStamina: 0
@@ -10192,12 +10290,23 @@ MonoBehaviour:
   groundMask:
     serializedVersion: 2
     m_Bits: 512
-  echoAI: {fileID: 1384380699}
-  crouchNoiseRadius: 3
-  walkNoiseRadius: 9
-  sprintNoiseRadius: 20
-  noiseInterval: 0.5
   state: 0
+--- !u!114 &1426038488
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1426038481}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9e4edcd8026ab64c9bd87d41251cc02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerNoise
+  echo: {fileID: 1384380699}
+  walkingNoise: 6
+  sprintingNoise: 15
+  crouchingNoise: 3
 --- !u!1 &1434100888
 GameObject:
   m_ObjectHideFlags: 0
@@ -13079,8 +13188,8 @@ GameObject:
   - component: {fileID: 1792491585}
   - component: {fileID: 1792491584}
   - component: {fileID: 1792491583}
-  - component: {fileID: 1792491582}
   - component: {fileID: 1792491586}
+  - component: {fileID: 1792491587}
   m_Layer: 0
   m_Name: PlayerCamera
   m_TagString: Untagged
@@ -13103,18 +13212,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1426038484}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1792491582
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1792491580}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 599e6b977644cf445919bc17f08239f9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MouseLook
 --- !u!114 &1792491583
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13227,13 +13324,25 @@ MonoBehaviour:
   m_GameObject: {fileID: 1792491580}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: eda465847e7c3f1439aace151108708f, type: 3}
+  m_Script: {fileID: 11500000, guid: a8b4c671fc407074290ef92dbc9ded62, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  interactDistance: 3
-  interactLayer:
-    serializedVersion: 2
-    m_Bits: 64
+  mouseSensitivity: 100
+  playerBody: {fileID: 1426038484}
+--- !u!114 &1792491587
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1792491580}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87fdd22f6735b0d4cb1e265eaf1f5020, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerInteraction
+  interactRange: 3
+  interactKey: 101
 --- !u!1 &1793990137
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,20 +1,26 @@
 using UnityEngine;
 
-public class PlayerInteraction : MonoBehaviour{
-    public float interactRange = 3f; //this is how far the raycast checks
+public class PlayerInteraction : MonoBehaviour
+{
+    public float interactRange = 3f;
     public KeyCode interactKey = KeyCode.E;
-    void Update(){
+
+    void Update()
+    {
         Ray ray = new Ray(transform.position, transform.forward);
-        RaycastHit hit; // stores info about what the ray has hit
+        RaycastHit hit;
 
-        if (Physics.Raycast(ray, out hit, interactRange)){
+        if (Physics.Raycast(ray, out hit, interactRange))
+        {
+            Interactable interactable = hit.collider.GetComponent<Interactable>();
 
-            // check if what we hit has the Interactable tag
-            if (hit.collider.CompareTag("Interactable")){
+            if (interactable != null)
+            {
                 Debug.Log("Looking at: " + hit.collider.name);
 
-                if (Input.GetKey(interactKey)){
-                    Debug.Log("Interacted with: " + hit.collider.name);
+                if (Input.GetKeyDown(interactKey))
+                {
+                    interactable.Interact();
                 }
             }
         }
