@@ -18,8 +18,9 @@ public class EchoAI : MonoBehaviour
     public Animator animator;
 
     [Header("Detection")]
-    public float closeRangeDetection = 4f;
+    public float closeRangeDetection = 2.5f;
     public float losePlayerRange = 15f;
+    public float catchDistance = 2.5f;
 
     [Header("Hearing")]
     public float huntNoiseThreshold = 15f;
@@ -89,9 +90,7 @@ public class EchoAI : MonoBehaviour
         if (distanceToPlayer <= closeRangeDetection &&
             currentState != EchoState.Hunt)
         {
-            Debug.Log(
-                "Player detected at close range -> HUNT"
-            );
+            Debug.Log("Player detected at close range -> HUNT");
 
             StartHunt();
         }
@@ -112,22 +111,19 @@ public class EchoAI : MonoBehaviour
     {
         agent.speed = patrolSpeed;
 
-        // Echo is still travelling to the sound
         if (agent.pathPending)
             return;
 
-        // Echo has reached the location of the sound
         if (agent.remainingDistance <= agent.stoppingDistance)
         {
             investigationTimer -= Time.deltaTime;
 
             if (investigationTimer <= 0f)
             {
-                Debug.Log(
-                    "Investigation finished -> PATROL"
-                );
+                Debug.Log("Investigation finished -> PATROL");
 
                 currentState = EchoState.Patrol;
+
                 GoToNextPatrolPoint();
             }
         }
@@ -147,6 +143,36 @@ public class EchoAI : MonoBehaviour
                 player.position
             );
 
+        // Temporary debug so we can see the real distance
+        Debug.Log(
+            "HUNT distance to player: " +
+            distanceToPlayer
+        );
+
+        // Echo catches the player
+        if (distanceToPlayer <= catchDistance)
+        {
+            Debug.Log(
+                "Echo caught the player -> GAME OVER"
+            );
+
+            agent.isStopped = true;
+
+            if (GameManager.instance != null)
+            {
+                GameManager.instance.GameOver();
+            }
+            else
+            {
+                Debug.LogError(
+                    "GameManager instance was not found."
+                );
+            }
+
+            return;
+        }
+
+        // Player escapes far enough away
         if (distanceToPlayer > losePlayerRange)
         {
             Debug.Log(
@@ -159,7 +185,10 @@ public class EchoAI : MonoBehaviour
             currentState = EchoState.Investigate;
 
             agent.speed = patrolSpeed;
-            agent.SetDestination(investigationPosition);
+
+            agent.SetDestination(
+                investigationPosition
+            );
         }
     }
 
@@ -168,9 +197,15 @@ public class EchoAI : MonoBehaviour
         if (player == null)
             return;
 
+        agent.isStopped = false;
+
         currentState = EchoState.Hunt;
+
         agent.speed = huntSpeed;
-        agent.SetDestination(player.position);
+
+        agent.SetDestination(
+            player.position
+        );
     }
 
     void GoToNextPatrolPoint()
@@ -181,6 +216,7 @@ public class EchoAI : MonoBehaviour
             return;
         }
 
+        agent.isStopped = false;
         agent.speed = patrolSpeed;
 
         agent.SetDestination(
@@ -206,19 +242,19 @@ public class EchoAI : MonoBehaviour
                 position
             );
 
-        // Echo is too far away to hear this noise
+        // Echo cannot hear noises outside their radius
         if (distanceToNoise > noiseRadius)
         {
             return;
         }
 
-        // Don't interrupt an active hunt
+        // Do not interrupt an active hunt
         if (currentState == EchoState.Hunt)
         {
             return;
         }
 
-        // Loud noise immediately causes a hunt
+        // Loud noises immediately cause Hunt
         if (noiseRadius >= huntNoiseThreshold)
         {
             Debug.Log(
@@ -229,10 +265,11 @@ public class EchoAI : MonoBehaviour
             );
 
             StartHunt();
+
             return;
         }
 
-        // Normal audible noise causes investigation
+        // Normal noises cause Investigate
         Debug.Log(
             "NOISE -> INVESTIGATE | Distance: " +
             distanceToNoise +
@@ -250,18 +287,21 @@ public class EchoAI : MonoBehaviour
             return;
         }
 
-        // Save the exact location where the sound occurred
+        // Remember where the sound happened
         investigationPosition = position;
 
-        // Reset timer every time Echo hears a new noise
+        // Reset the investigation timer
         investigationTimer = investigationTime;
 
         currentState = EchoState.Investigate;
+
+        agent.isStopped = false;
         agent.speed = patrolSpeed;
 
-        // Travel to the sound location, not the player's
-        // continuously updated position
-        agent.SetDestination(investigationPosition);
+        // Move to the sound location
+        agent.SetDestination(
+            investigationPosition
+        );
     }
 
     void UpdateAnimation()
