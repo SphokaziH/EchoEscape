@@ -10275,8 +10275,8 @@ MonoBehaviour:
   speed: 12
   gravity: -9.8
   jumpHeight: 3
-  walkSpeed: 7
-  sprintSpeed: 10
+  walkSpeed: 4
+  sprintSpeed: 8
   crouchSpeed: 5.6
   crouchHeight: 1.2
   maxStamina: 100
@@ -10304,9 +10304,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerNoise
   echo: {fileID: 1384380699}
+  playerMovement: {fileID: 0}
   walkingNoise: 6
   sprintingNoise: 15
   crouchingNoise: 3
+  noiseInterval: 0.5
 --- !u!1 &1434100888
 GameObject:
   m_ObjectHideFlags: 0

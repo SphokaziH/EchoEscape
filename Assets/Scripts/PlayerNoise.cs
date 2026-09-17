@@ -2,41 +2,86 @@ using UnityEngine;
 
 public class PlayerNoise : MonoBehaviour
 {
+    [Header("References")]
     public EchoAI echo;
+    public PlayerMovement playerMovement;
 
-    public float walkingNoise = 6f;
-    public float sprintingNoise = 15f;
-    public float crouchingNoise = 3f;
+    [Header("Noise Levels")]
+    public float walkingNoise = 10f;
+    public float sprintingNoise = 18f;
+    public float crouchingNoise = 4f;
 
-    private CharacterController controller;
+    [Header("Noise Timing")]
+    public float noiseInterval = 0.5f;
+
     private Vector3 lastPosition;
+    private float noiseTimer;
 
     void Start()
     {
-        controller = GetComponent<CharacterController>();
         lastPosition = transform.position;
+
+        if (playerMovement == null)
+        {
+            playerMovement =
+                GetComponent<PlayerMovement>();
+        }
     }
 
     void Update()
     {
         float movement =
-            Vector3.Distance(transform.position, lastPosition);
+            Vector3.Distance(
+                transform.position,
+                lastPosition
+            );
 
-        if (movement > 0.01f)
+        noiseTimer -= Time.deltaTime;
+
+        if (movement > 0.01f &&
+            noiseTimer <= 0f)
         {
             MakeNoise();
+            noiseTimer = noiseInterval;
         }
 
         lastPosition = transform.position;
     }
 
-
     void MakeNoise()
     {
-        float noise = walkingNoise;
+        if (echo == null ||
+            playerMovement == null)
+        {
+            return;
+        }
 
-        // later we can connect this to your sprint/crouch state
+        float noise;
 
-        echo.HearNoise(transform.position, noise);
+        switch (playerMovement.state)
+        {
+            case PlayerMovement.MovementState.crouching:
+                noise = crouchingNoise;
+                Debug.Log("Player CROUCH noise: " + noise);
+                break;
+
+            case PlayerMovement.MovementState.sprinting:
+                noise = sprintingNoise;
+                Debug.Log("Player SPRINT noise: " + noise);
+                break;
+
+            case PlayerMovement.MovementState.walking:
+                noise = walkingNoise;
+                Debug.Log("Player WALK noise: " + noise);
+                break;
+
+            default:
+                return;
+        }
+
+        echo.HearNoise(
+            transform.position,
+            noise
+        );
     }
 }
