@@ -57,6 +57,7 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
+        Debug.Log(controller.name);
         isGrounded = Physics.CheckSphere(
             groundCheck.position,
             groundDistance,
@@ -118,11 +119,11 @@ public class PlayerMovement : MonoBehaviour
         currentStamina =
             Mathf.Clamp(currentStamina, 0f, maxStamina);
 
-        velocity.y += gravity * Time.deltaTime;
+        //velocity.y += gravity * Time.deltaTime;
 
-        controller.Move(
-            velocity * Time.deltaTime
-        );
+       // controller.Move(
+           // velocity * Time.deltaTime
+        //);
     }
 
     void StateHandler(bool isMoving)
