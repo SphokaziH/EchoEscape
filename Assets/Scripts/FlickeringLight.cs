@@ -1,6 +1,5 @@
 using UnityEngine;
 
-/// <summary>
 /// Horror-style light behaviour:
 /// - Idle: subtle continuous flickering
 /// - Dying: stronger flickering with brief blackouts
@@ -8,7 +7,7 @@ using UnityEngine;
 /// - Off: completely disabled
 ///
 /// Designed for Unity 6 / URP point lights.
-/// </summary>
+
 [RequireComponent(typeof(Light))]
 public class FlickeringLight : MonoBehaviour
 {
