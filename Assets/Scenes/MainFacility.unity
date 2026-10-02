@@ -15762,7 +15762,7 @@ MonoBehaviour:
   groundDistance: 0.4
   groundMask:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 512
   state: 0
 --- !u!143 &1971895511
 CharacterController:
