@@ -10979,6 +10979,7 @@ GameObject:
   - component: {fileID: 1422559660}
   - component: {fileID: 1422559659}
   - component: {fileID: 1422559662}
+  - component: {fileID: 1422559663}
   m_Layer: 0
   m_Name: BreakRoom_DoorRight
   m_TagString: Untagged
@@ -11097,11 +11098,108 @@ MonoBehaviour:
   moveDuration: 2
   player: {fileID: 1971895515}
   interactionDistance: 5
-  audioSource: {fileID: 0}
-  openingSound: {fileID: 0}
-  closingSound: {fileID: 0}
-  echo: {fileID: 0}
+  audioSource: {fileID: 1422559663}
+  openingSound: {fileID: 8300000, guid: 1672678dc7516164a903c0355d393ffa, type: 3}
+  closingSound: {fileID: 8300000, guid: 952223f8f8cc6f74e8764bfb029e5b9b, type: 3}
+  echo: {fileID: 1384380699}
   doorNoiseRadius: 12
+--- !u!82 &1422559663
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1422559657}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 0}
+  m_PlayOnAwake: 0
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &1426038481
 GameObject:
   m_ObjectHideFlags: 0
@@ -17416,8 +17514,6 @@ GameObject:
   - component: {fileID: 2140678336}
   - component: {fileID: 2140678335}
   - component: {fileID: 2140678334}
-  - component: {fileID: 2140678338}
-  - component: {fileID: 2140678337}
   m_Layer: 0
   m_Name: ChemLab_Door1
   m_TagString: Untagged
