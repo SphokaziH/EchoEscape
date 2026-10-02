@@ -19,6 +19,8 @@ public class Generator : Interactable
             Debug.Log("Generator Activated!");
 
             GameManager.instance.ActivateGenerator();
+            FacilityPower.Restore();   // all ceiling lights flicker on and go bright white
+            WallPower.PowerOn();   // walls flicker on, then stay bright
         }
         else
         {
