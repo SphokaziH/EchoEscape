@@ -2056,7 +2056,7 @@ PrefabInstance:
     - target: {fileID: 8894602587366163917, guid: 7cbe8d50075a8274f8913cc5881d1b3f, type: 3}
       propertyPath: player
       value: 
-      objectReference: {fileID: 1426038484}
+      objectReference: {fileID: 1971895515}
     - target: {fileID: 8894602587366163917, guid: 7cbe8d50075a8274f8913cc5881d1b3f, type: 3}
       propertyPath: animator
       value: 
@@ -16131,7 +16131,7 @@ MonoBehaviour:
   groundDistance: 0.4
   groundMask:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 512
   state: 0
 --- !u!143 &1971895511
 CharacterController:
