@@ -6,7 +6,7 @@ public class Main : MonoBehaviour
     public int lightCount;
     private int onCount = 0;
     static public Main Instance;
-
+    [SerializeField] private DoorController elevatorDoorController;
     void Awake()
     {
         Instance = this;
@@ -16,7 +16,19 @@ public class Main : MonoBehaviour
         onCount= onCount+ points;
         if (onCount == lightCount)
         {
-            ///open door
+            Debug.Log($"Power restored: ");
+            // Call method to change lights
+            //???
+            // open door elevator door
+            if (elevatorDoorController != null)
+            {
+                elevatorDoorController.OpenDoor();
+            }
+            else
+            {
+                Debug.LogError("Door Controller has not been assigned!");
+            }
+
         }
     }
 }

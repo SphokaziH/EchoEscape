@@ -6,6 +6,7 @@ public class GameManangerScript : MonoBehaviour
 {
     [SerializeField] private Transform gameTransform;
     [SerializeField] private Transform piecePrefab;
+    [SerializeField] private DoorController doorController;
     private int emptyLocation;
     private int size ;
   
@@ -91,6 +92,14 @@ public class GameManangerScript : MonoBehaviour
         {
             Debug.Log("Puzzle Completed");
             //OPEN DOOR AND START COUNTDOWN
+            if (doorController != null)
+            {
+                doorController.OpenDoor();
+            }
+            else
+            {
+                Debug.LogError("Door Controller has not been assigned!");
+            }
         }
         if (Input.GetMouseButtonDown(0))
         {

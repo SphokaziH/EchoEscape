@@ -83,6 +83,19 @@ public class DoorController : MonoBehaviour
             MoveDoor();
         }
     }
+    public void OpenDoor()
+    {
+        if (isOpen || isMoving)
+            return;
+
+        targetPosition = openPosition;
+        isOpen = true;
+
+        PlayDoorSound(openingSound);
+        MakeDoorNoise();
+
+        isMoving = true;
+    }
 
     void ToggleDoor()
     {
