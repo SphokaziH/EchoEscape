@@ -8,11 +8,12 @@ public class GameManager : MonoBehaviour
     [Header("Power System")]
     public int powerNodesCollected = 0;
     public int totalPowerNodes = 3;
+    public int powerNodesInstalled = 0;
 
     public bool generatorActivated = false;
     public bool elevatorUnlocked = false;
 
-    [Header("Containment (win condition)")]
+    [Header("Containment Ending")]
     public bool echoTrapped = false;
 
     [Header("Game Over")]
@@ -38,47 +39,89 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        // Hide Game Over screen when the game starts
         if (gameOverPanel != null)
-        {
             gameOverPanel.SetActive(false);
-        }
     }
 
-    // Called when the containment doors have closed with Echo inside.
     void HandleEchoTrapped()
     {
         if (gameOver)
             return;
 
         echoTrapped = true;
-        elevatorUnlocked = true;   // the way out opens once Echo is locked away
 
-        Debug.Log("Echo is trapped in the containment cage. Elevator unlocked - escape the facility!");
+        Debug.Log("Echo has been contained. Containment ending triggered.");
     }
 
     public void CollectPowerNode()
     {
+        if (powerNodesCollected + powerNodesInstalled >= totalPowerNodes)
+            return;
+
         powerNodesCollected++;
 
         Debug.Log(
-            "Power Nodes: " +
+            "Power Nodes in Inventory: " +
             powerNodesCollected +
             "/" +
             totalPowerNodes
         );
 
-        if (powerNodesCollected >= totalPowerNodes)
+        if (powerNodesCollected + powerNodesInstalled >= totalPowerNodes)
         {
-            ActivateGenerator();
+            Debug.Log("All Power Nodes found. Take them to the generator room.");
+        }
+    }
+
+    public bool HasPowerNode()
+    {
+        return powerNodesCollected > 0;
+    }
+
+    public void InstallPowerNode()
+    {
+        if (powerNodesCollected <= 0)
+            return;
+
+        if (powerNodesInstalled >= totalPowerNodes)
+            return;
+
+        powerNodesCollected--;
+        powerNodesInstalled++;
+
+        Debug.Log(
+            "Power Nodes Installed: " +
+            powerNodesInstalled +
+            "/" +
+            totalPowerNodes
+        );
+
+        if (powerNodesInstalled >= totalPowerNodes)
+        {
+            Debug.Log("All Power Nodes installed. Generator ready.");
         }
     }
 
     public void ActivateGenerator()
     {
+        if (generatorActivated)
+            return;
+
+        if (powerNodesInstalled < totalPowerNodes)
+        {
+            Debug.Log("Generator cannot start. Power Nodes are missing.");
+            return;
+        }
+
         generatorActivated = true;
 
-        Debug.Log("Facility power restored.");
+        FacilityPower.Restore();
+
+        elevatorUnlocked = true;
+
+        Debug.Log(
+            "Facility power restored. Emergency elevator and containment systems online."
+        );
     }
 
     public void GameOver()
@@ -91,14 +134,10 @@ public class GameManager : MonoBehaviour
         Debug.Log("GAME OVER - Echo caught the player.");
 
         if (gameOverPanel != null)
-        {
             gameOverPanel.SetActive(true);
-        }
 
         if (playerMovement != null)
-        {
             playerMovement.enabled = false;
-        }
 
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
