@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 4ba2cfbe483da89499a9370715649ee0
+guid: 0cdeb99b7d42fc94b9239a0bde3ee7fd
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -45,7 +45,7 @@ TextureImporter:
   compressionQuality: 50
   spriteMode: 2
   spriteExtrude: 1
-  spriteMeshType: 0
+  spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 100
@@ -97,23 +97,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Light_0
+      name: Wire_in
       rect:
         serializedVersion: 2
-        x: 1
-        y: 1
-        width: 47
-        height: 26
+        x: 0
+        y: 0
+        width: 46
+        height: 19
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: fbabf328d7b63c649828cf3dc2a22afd
-      internalID: 343385567
+      spriteID: f16662ca1142df14a903f22485958bc9
+      internalID: 836886232
       vertices: []
       indices: 
       edges: []
@@ -122,7 +122,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 94cbeb8894faa7e4cadcb1135db3ef75
+    spriteID: d1a2a575836a5de489f97e421ae6b430
     internalID: 0
     vertices: []
     indices: 
@@ -132,7 +132,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Light_0: 343385567
+      Wire_in: 836886232
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
