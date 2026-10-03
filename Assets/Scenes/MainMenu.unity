@@ -2914,7 +2914,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1639772085
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3654,11 +3654,9 @@ MonoBehaviour:
   m_text: 'SURVIVAL
 
 
-
     STAY QUIET
 
     Sound can attract unwanted attention.
-
 
 
     MOVE
@@ -3667,19 +3665,16 @@ MonoBehaviour:
     Different actions create different levels of noise.
 
 
-
     USE
     YOUR ENVIRONMENT
 
     Objects around the facility may help you survive.
 
 
-
     STAY
     ALERT
 
     Listen carefully and watch your surroundings.
-
 
 
     FIND A WAY OUT
