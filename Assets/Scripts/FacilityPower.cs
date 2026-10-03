@@ -1,0 +1,45 @@
+using UnityEngine;
+
+// Global power state. Call FacilityPower.Restore() from your generator puzzle.
+// Also drives the wall shader brightness through WallPower, so lights and walls change together.
+public class FacilityPower : MonoBehaviour
+{
+    public bool startPowered = false;
+    public float autoRestoreAfterSeconds = 0f;   // testing only: 0 = never
+
+    public static bool IsRestored { get; private set; }
+    public static float RestoredAt { get; private set; }
+
+    float startTime;
+
+    void Awake()
+    {
+        IsRestored = startPowered;
+        RestoredAt = startPowered ? -999f : 0f;
+        startTime = Time.time;
+        WallPower.Set(startPowered ? 1f : 0f);
+    }
+
+    void Update()
+    {
+        if (!IsRestored && autoRestoreAfterSeconds > 0f && Time.time - startTime >= autoRestoreAfterSeconds)
+            Restore();
+    }
+
+    public static void Restore()
+    {
+        if (IsRestored) return;
+        IsRestored = true;
+        RestoredAt = Time.time;
+        WallPower.PowerOn(2f);
+    }
+
+    public static void Cut()
+    {
+        IsRestored = false;
+        WallPower.Set(0f);
+    }
+
+    [ContextMenu("Restore Power (Play mode)")]
+    void RestoreFromMenu() { Restore(); }
+}

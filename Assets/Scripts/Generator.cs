@@ -19,6 +19,7 @@ public class Generator : Interactable
             Debug.Log("Generator Activated!");
 
             GameManager.instance.ActivateGenerator();
+            FacilityPower.Restore();   // ceiling lights flicker on and walls brighten
         }
         else
         {
