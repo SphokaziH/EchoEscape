@@ -26,6 +26,8 @@ Shader "Horror/WetFacilityFloorURP"
         _RippleRate       ("Ripple Speed", Float) = 1
         _RippleStrength   ("Ripple Strength", Range(0,4)) = 1.5
         _RippleFade       ("Ripple fade distance (meters)", Float) = 25
+        _DripPuddleRadius   ("Puddle size under ceiling drips (meters)", Float) = 0.9
+        _DripRippleStrength ("Drip ripple strength", Range(0,3)) = 1.2
 
         _EmissionMap    ("Emission Mask (crack lines)", 2D) = "black" {}
         _EmissionColor  ("Emergency Emission Color", Color) = (0.9, 0.05, 0.05, 1)
@@ -86,9 +88,16 @@ Shader "Horror/WetFacilityFloorURP"
                 float _RippleRate;
                 float _RippleStrength;
                 float _RippleFade;
+                float _DripPuddleRadius;
+                float _DripRippleStrength;
                 float _PulseSpeed;
                 float _PulseMin;
             CBUFFER_END
+
+            // Set every frame by FacilityDrips.cs
+            float4 _DripData[16];   // xy = world xz, z = period, w = phase
+            float _DripCount;
+            float _FacilityTime;
 
             struct Attributes
             {
@@ -163,6 +172,15 @@ Shader "Horror/WetFacilityFloorURP"
                 half mask = SAMPLE_TEXTURE2D(_WetnessMask, sampler_WetnessMask, worldUV / _PuddleMeters).r;
                 half wet = smoothstep(0.45, 0.55, mask + (_WetnessAmount - 0.5));
 
+                // --- A permanent puddle under every ceiling drip ---
+                int dripN = (int)_DripCount;
+                [loop] for (int di = 0; di < dripN; di++)
+                {
+                    float dd = distance(worldUV, _DripData[di].xy) + (mask - 0.5) * 0.4;
+                    float puddle = 1.0 - smoothstep(_DripPuddleRadius * 0.55, _DripPuddleRadius, dd);
+                    wet = max(wet, (half)puddle);
+                }
+
                 // --- Parallax (flattened inside puddles) ---
                 float2 uv = worldUV / _TileMeters;
                 half height = SAMPLE_TEXTURE2D(_HeightMap, sampler_HeightMap, uv).r;
@@ -176,6 +194,21 @@ Shader "Horror/WetFacilityFloorURP"
                 float fade = saturate(1.0 - camDist / _RippleFade);
                 float2 g = RippleGradient(worldUV / _RippleCellMeters, _Time.y * _RippleRate);
                 nTS.xy += (-g * _RippleStrength * fade * wet);
+
+                // --- Rings from each drip landing (timing matches the falling drop) ---
+                [loop] for (int dj = 0; dj < dripN; dj++)
+                {
+                    float4 dv4 = _DripData[dj];
+                    float ra = fmod(_FacilityTime + dv4.w, dv4.z) - (dv4.z - 1.8);
+                    if (ra > 0.0)
+                    {
+                        float2 dv = worldUV - dv4.xy;
+                        float dl = length(dv) + 0.0001;
+                        float x0 = dl - ra * 0.5;
+                        float env = exp(-x0 * x0 * 60.0) * (1.0 - ra / 1.8);
+                        nTS.xy -= (dv / dl) * cos(x0 * 40.0) * env * _DripRippleStrength * fade;
+                    }
+                }
                 nTS = normalize(nTS);
 
                 float3 normalWS = normalize(mul(nTS, TBN));
