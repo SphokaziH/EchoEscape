@@ -7,64 +7,103 @@ public class Wire : MonoBehaviour
 {
     Vector3 startPoint;
     Vector3 startPosition;
-    public SpriteRenderer wireEnd;
+
+    public LineRenderer wireLine;
     public GameObject lightOn;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+
+    public float wireRadius = 0.2f;
+
     void Start()
     {
+        // Starting position of the wire
         startPoint = transform.parent.position;
-        startPosition= transform.position;
+        startPosition = transform.position;
+
+        // Set up LineRenderer
+        if (wireLine != null)
+        {
+            wireLine.positionCount = 2;
+            wireLine.SetPosition(0, startPoint);
+            wireLine.SetPosition(1, startPosition);
+        }
     }
 
-    // Update is called once per frame
     private void OnMouseDrag()
     {
-        Vector2 mousePosition2D =Mouse.current.position.ReadValue();
-        Vector3 mousePosition3D = new Vector3(mousePosition2D.x, mousePosition2D.y, 0);
-        Vector3 newPosition = Camera.main.ScreenToWorldPoint(mousePosition3D);
-        newPosition.z = 0;
+        // Get mouse position
+        Vector2 mousePosition = Mouse.current.position.ReadValue();
 
-        Collider2D[] colliders = Physics2D.OverlapCircleAll(newPosition, .2f);
-        foreach (Collider2D collider in colliders)
+        // Create a ray from the camera through the mouse position
+        Ray ray = Camera.main.ScreenPointToRay(mousePosition);
+
+        // Plane where the wires are located
+        Plane wirePlane = new Plane(Vector3.forward, startPoint);
+
+        float distance;
+
+        if (wirePlane.Raycast(ray, out distance))
         {
-            if(collider.gameObject != gameObject)
+            // Get the mouse position on the wire plane
+            Vector3 newPosition = ray.GetPoint(distance);
+
+            // Check for nearby wire endpoints
+            Collider[] colliders = Physics.OverlapSphere(
+                newPosition,
+                wireRadius
+            );
+
+            foreach (Collider collider in colliders)
             {
-                UpdateWire(collider.transform.position);
-
-                if(transform.transform.name.Equals(collider.transform.parent.name))
+                if (collider.gameObject != gameObject)
                 {
+                    UpdateWire(collider.transform.position);
 
-                    Main.Instance.LightChange(1);
-                    collider.GetComponent<Wire>()?.Done();
+                    // Check if this is the matching wire
+                    if (transform.parent.name == collider.transform.parent.name)
+                    {
+                        Main.Instance.LightChange(1);
 
-                    Done();   
+                        Wire otherWire =
+                            collider.GetComponent<Wire>();
+
+                        if (otherWire != null)
+                        {
+                            otherWire.Done();
+                        }
+
+                        Done();
+
+                        return;
+                    }
                 }
-                return;
             }
-        }
-        UpdateWire(startPosition);
 
+            // No matching endpoint found
+            UpdateWire(startPosition);
+        }
     }
 
     private void OnMouseUp()
     {
+        // Return wire to original position
         UpdateWire(startPosition);
     }
+
     void UpdateWire(Vector3 newPosition)
     {
         transform.position = newPosition;
 
-        Vector3 direction = newPosition - startPoint;
-        transform.right = direction * transform.lossyScale.x;
-
-        float dist = Vector2.Distance(startPoint, newPosition);
-        wireEnd.size = new Vector2(dist, wireEnd.size.y);
+        if (wireLine != null)
+        {
+            wireLine.SetPosition(0, startPoint);
+            wireLine.SetPosition(1, newPosition);
+        }
     }
 
     void Done()
     {
         lightOn.SetActive(true);
+
         Destroy(this);
-        
     }
 }

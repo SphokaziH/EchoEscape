@@ -12,6 +12,9 @@ public class GameManager : MonoBehaviour
     public bool generatorActivated = false;
     public bool elevatorUnlocked = false;
 
+    [Header("Containment (win condition)")]
+    public bool echoTrapped = false;
+
     [Header("Game Over")]
     public GameObject gameOverPanel;
     public PlayerMovement playerMovement;
@@ -23,6 +26,16 @@ public class GameManager : MonoBehaviour
         instance = this;
     }
 
+    void OnEnable()
+    {
+        ContainmentUnit.OnEchoTrapped += HandleEchoTrapped;
+    }
+
+    void OnDisable()
+    {
+        ContainmentUnit.OnEchoTrapped -= HandleEchoTrapped;
+    }
+
     void Start()
     {
         // Hide Game Over screen when the game starts
@@ -30,6 +43,18 @@ public class GameManager : MonoBehaviour
         {
             gameOverPanel.SetActive(false);
         }
+    }
+
+    // Called when the containment doors have closed with Echo inside.
+    void HandleEchoTrapped()
+    {
+        if (gameOver)
+            return;
+
+        echoTrapped = true;
+        elevatorUnlocked = true;   // the way out opens once Echo is locked away
+
+        Debug.Log("Echo is trapped in the containment cage. Elevator unlocked - escape the facility!");
     }
 
     public void CollectPowerNode()
