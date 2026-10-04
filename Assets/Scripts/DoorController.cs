@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class DoorController : MonoBehaviour
+public class DoorController : Interactable
 {
     public enum OpenAxis
     {
@@ -15,10 +15,6 @@ public class DoorController : MonoBehaviour
     [Header("Movement")]
     public float openDistance = -5f;
     public float moveDuration = 2f;
-
-    [Header("Interaction")]
-    public Transform player;
-    public float interactionDistance = 5f;
 
     [Header("Door Audio")]
     public AudioSource audioSource;
@@ -64,25 +60,31 @@ public class DoorController : MonoBehaviour
 
     void Update()
     {
-        if (movingDoor == null || player == null)
-            return;
-
-        float distanceToPlayer = Vector3.Distance(
-            player.position,
-            movingDoor.position
-        );
-
-        if (distanceToPlayer <= interactionDistance &&
-            Input.GetKeyDown(KeyCode.E))
-        {
-            ToggleDoor();
-        }
-
         if (isMoving)
         {
             MoveDoor();
         }
     }
+
+    public override void Interact()
+    {
+        if (movingDoor == null || isMoving)
+            return;
+
+        ToggleDoor();
+    }
+
+    public override string GetInteractionPrompt()
+    {
+        if (isMoving)
+            return "";
+
+        if (isOpen)
+            return "[E] CLOSE DOOR";
+
+        return "[E] OPEN DOOR";
+    }
+
     public void OpenDoor()
     {
         if (isOpen || isMoving)

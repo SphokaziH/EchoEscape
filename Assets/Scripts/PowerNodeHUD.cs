@@ -9,7 +9,10 @@ public class PowerNodeHUD : MonoBehaviour
     public TMP_Text node2;
     public TMP_Text node3;
 
-    [Header("Pickup Notification")]
+    [Header("Installed Counter")]
+    public TMP_Text installedText;
+
+    [Header("Notification")]
     public TMP_Text notificationText;
     public float notificationDuration = 2f;
 
@@ -17,7 +20,9 @@ public class PowerNodeHUD : MonoBehaviour
     public Color emptyColour = new Color(0.39f, 0.45f, 0.45f);
     public Color collectedColour = new Color(0.18f, 0.85f, 0.78f);
 
-    private int previousNodeCount = -1;
+    private int previousCollected = -1;
+    private int previousInstalled = -1;
+
     private Coroutine notificationCoroutine;
 
     void Start()
@@ -31,24 +36,63 @@ public class PowerNodeHUD : MonoBehaviour
         if (GameManager.instance == null)
             return;
 
-        int nodes = GameManager.instance.powerNodesCollected;
+        int collected = GameManager.instance.powerNodesCollected;
+        int installed = GameManager.instance.powerNodesInstalled;
+        int total = GameManager.instance.totalPowerNodes;
 
-        UpdateNode(node1, nodes >= 1);
-        UpdateNode(node2, nodes >= 2);
-        UpdateNode(node3, nodes >= 3);
+        // Update carried Power Node indicators
+        UpdateNode(node1, collected >= 1);
+        UpdateNode(node2, collected >= 2);
+        UpdateNode(node3, collected >= 3);
 
-        if (previousNodeCount == -1)
+        // Update installed counter
+        if (installedText != null)
         {
-            previousNodeCount = nodes;
+            installedText.text =
+                "INSTALLED  " + installed + " / " + total;
+        }
+
+        // Prevent popups when the scene first loads
+        if (previousCollected == -1)
+        {
+            previousCollected = collected;
+            previousInstalled = installed;
             return;
         }
 
-        if (nodes > previousNodeCount)
+        // A Power Node was collected
+        if (collected > previousCollected)
         {
-            ShowNotification(nodes);
+            ShowNotification(
+                "POWER NODE ACQUIRED\n" +
+                collected + " / " + total
+            );
         }
 
-        previousNodeCount = nodes;
+        // A Power Node was installed
+        if (installed > previousInstalled)
+        {
+            if (installed >= total)
+            {
+                ShowNotification(
+                    "POWER NODE INSTALLED\n" +
+                    installed + " / " + total +
+                    "\n\nPOWER CORE ONLINE\n" +
+                    "REPAIR THE GENERATOR CIRCUIT",
+                    4f
+                );
+            }
+            else
+            {
+                ShowNotification(
+                    "POWER NODE INSTALLED\n" +
+                    installed + " / " + total
+                );
+            }
+        }
+
+        previousCollected = collected;
+        previousInstalled = installed;
     }
 
     void UpdateNode(TMP_Text node, bool collected)
@@ -68,7 +112,12 @@ public class PowerNodeHUD : MonoBehaviour
         }
     }
 
-    void ShowNotification(int nodes)
+    void ShowNotification(string message)
+    {
+        ShowNotification(message, notificationDuration);
+    }
+
+    void ShowNotification(string message, float duration)
     {
         if (notificationText == null)
             return;
@@ -76,20 +125,16 @@ public class PowerNodeHUD : MonoBehaviour
         if (notificationCoroutine != null)
             StopCoroutine(notificationCoroutine);
 
-        notificationCoroutine = StartCoroutine(
-            NotificationRoutine(nodes)
-        );
+        notificationCoroutine =
+            StartCoroutine(NotificationRoutine(message, duration));
     }
 
-    IEnumerator NotificationRoutine(int nodes)
+    IEnumerator NotificationRoutine(string message, float duration)
     {
-        notificationText.text =
-            "POWER NODE ACQUIRED\n" +
-            nodes + " / " + GameManager.instance.totalPowerNodes;
-
+        notificationText.text = message;
         notificationText.gameObject.SetActive(true);
 
-        yield return new WaitForSeconds(notificationDuration);
+        yield return new WaitForSeconds(duration);
 
         notificationText.gameObject.SetActive(false);
 

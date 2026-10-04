@@ -1,5 +1,3 @@
-using System.Collections;
-using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -15,11 +13,9 @@ public class Wire : MonoBehaviour
 
     void Start()
     {
-        // Starting position of the wire
         startPoint = transform.parent.position;
         startPosition = transform.position;
 
-        // Set up LineRenderer
         if (wireLine != null)
         {
             wireLine.positionCount = 2;
@@ -30,23 +26,20 @@ public class Wire : MonoBehaviour
 
     private void OnMouseDrag()
     {
-        // Get mouse position
+        Debug.Log("Dragging wire: " + gameObject.name);
+
         Vector2 mousePosition = Mouse.current.position.ReadValue();
 
-        // Create a ray from the camera through the mouse position
         Ray ray = Camera.main.ScreenPointToRay(mousePosition);
 
-        // Plane where the wires are located
         Plane wirePlane = new Plane(Vector3.forward, startPoint);
 
         float distance;
 
         if (wirePlane.Raycast(ray, out distance))
         {
-            // Get the mouse position on the wire plane
             Vector3 newPosition = ray.GetPoint(distance);
 
-            // Check for nearby wire endpoints
             Collider[] colliders = Physics.OverlapSphere(
                 newPosition,
                 wireRadius
@@ -58,7 +51,6 @@ public class Wire : MonoBehaviour
                 {
                     UpdateWire(collider.transform.position);
 
-                    // Check if this is the matching wire
                     if (transform.parent.name == collider.transform.parent.name)
                     {
                         Main.Instance.LightChange(1);
@@ -67,25 +59,20 @@ public class Wire : MonoBehaviour
                             collider.GetComponent<Wire>();
 
                         if (otherWire != null)
-                        {
                             otherWire.Done();
-                        }
 
                         Done();
-
                         return;
                     }
                 }
             }
 
-            // No matching endpoint found
-            UpdateWire(startPosition);
+            UpdateWire(newPosition);
         }
     }
 
     private void OnMouseUp()
     {
-        // Return wire to original position
         UpdateWire(startPosition);
     }
 
@@ -103,7 +90,6 @@ public class Wire : MonoBehaviour
     void Done()
     {
         lightOn.SetActive(true);
-
         Destroy(this);
     }
 }
