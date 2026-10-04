@@ -36640,6 +36640,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5454228650456607545, guid: a9634665149bfa24ab16704473334b0d, type: 3}
+      propertyPath: interactionPrompt
+      value: 
+      objectReference: {fileID: 1229887846}
     - target: {fileID: 5725146297784213590, guid: a9634665149bfa24ab16704473334b0d, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.14
