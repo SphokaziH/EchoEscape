@@ -34,7 +34,7 @@ public class PlayerMovement : MonoBehaviour{
     public LayerMask groundMask;
 
     private Vector3 velocity;
-    private bool isGrounded;
+    public bool isGrounded;
 
     public MovementState state;
 
