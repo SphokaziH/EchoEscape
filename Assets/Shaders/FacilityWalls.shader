@@ -1,8 +1,5 @@
 // URP wall shader for AmbientCG Plaster001 (Color, NormalGL, Roughness, AmbientOcclusion).
-// - World-space triplanar mapping: no UVs needed, scaled cubes never stretch the texture.
-// - Matte: environment reflections are switched off and smoothness is capped, so no milky sheen.
-// - Procedural grime in world space: floor dirt, ceiling stains, water streaks and blotches.
-// - Reads the global float _FacilityPower (0 = power off, 1 = power on), set from WallPower.cs.
+
 Shader "Echo/FacilityWall"
 {
     Properties
@@ -38,11 +35,14 @@ Shader "Echo/FacilityWall"
         [Header(Power)]
         [Toggle] _UseGlobalPower("Use global power (_FacilityPower)", Float) = 1
         _LocalPower("Local power (when not global)", Range(0, 1)) = 0
-        _LightInfluence("Dynamic light influence (0 = walls ignore lights)", Range(0, 1)) = 0.25
         _OffAlbedo("Surface brightness, power off", Range(0, 1)) = 0.6
         _AmbientOff("Ambient light, power off", Range(0, 1)) = 0.05
         _AmbientOn("Ambient light, power on", Range(0, 2)) = 0.35
         _AmbientTint("Ambient tint", Color) = (0.8, 0.88, 0.85, 1)
+
+        [Header(Lamp light on the walls)]
+        _LightGain("Direct light gain (raise to make lamps pop)", Range(0, 8)) = 1.5
+        _LightWrap("Light spill / wrap (soft glow near lamps)", Range(0, 4)) = 0.8
     }
 
     SubShader
@@ -66,13 +66,14 @@ Shader "Echo/FacilityWall"
 
             #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
             #pragma multi_compile _ _ADDITIONAL_LIGHTS
+            #pragma multi_compile _ _FORWARD_PLUS
             #pragma multi_compile _ _CLUSTER_LIGHT_LOOP
             #pragma multi_compile_fragment _ _ADDITIONAL_LIGHT_SHADOWS
             #pragma multi_compile_fragment _ _SHADOWS_SOFT
             #pragma multi_compile_fog
             #pragma multi_compile_instancing
 
-            // Plaster does not mirror the sky. This must come before the URP includes.
+            // Plaster does not mirror the sky. 
             #define _ENVIRONMENTREFLECTIONS_OFF 1
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
@@ -101,7 +102,6 @@ Shader "Echo/FacilityWall"
                 float _CeilingGrimeHeight;
                 half _UseGlobalPower;
                 half _LocalPower;
-                half _LightInfluence;
                 float4 _KeyLightDir;
                 half _KeyLightStrength;
                 half _CavityStrength;
@@ -109,9 +109,10 @@ Shader "Echo/FacilityWall"
                 half _AmbientOff;
                 half _AmbientOn;
                 half4 _AmbientTint;
+                half _LightGain;
+                half _LightWrap;
             CBUFFER_END
 
-            // ---- small value-noise helpers for world-space grime ----
             float Hash13(float3 p)
             {
                 p = frac(p * 0.1031);
@@ -190,7 +191,7 @@ Shader "Echo/FacilityWall"
                 float3 nWS = normalize(input.normalWS);
                 float3 wp = input.positionWS;
 
-                // ---- triplanar weights and projections ----
+             
                 float3 blend = pow(abs(nWS), _BlendSharpness);
                 blend /= (blend.x + blend.y + blend.z + 1e-5);
 
@@ -214,7 +215,7 @@ Shader "Echo/FacilityWall"
                     SAMPLE_TEXTURE2D(_OcclusionMap, sampler_BaseMap, uvY).r * blend.y +
                     SAMPLE_TEXTURE2D(_OcclusionMap, sampler_BaseMap, uvZ).r * blend.z;
 
-                // ---- triplanar normal map (whiteout blend) ----
+              
                 half3 tnX = UnpackNormal(SAMPLE_TEXTURE2D(_BumpMap, sampler_BaseMap, uvX));
                 half3 tnY = UnpackNormal(SAMPLE_TEXTURE2D(_BumpMap, sampler_BaseMap, uvY));
                 half3 tnZ = UnpackNormal(SAMPLE_TEXTURE2D(_BumpMap, sampler_BaseMap, uvZ));
@@ -228,12 +229,12 @@ Shader "Echo/FacilityWall"
 
                 float3 normalWS = normalize(tnX.zyx * blend.x + tnY.xzy * blend.y + tnZ.xyz * blend.z);
 
-                // ---- decay: desaturate, then layer grime ----
+              
                 half luma = dot(albedo, half3(0.299h, 0.587h, 0.114h));
                 albedo = lerp(half3(luma, luma, luma), albedo, 1.0h - _Desaturate);
 
                 float h = wp.y - _FloorY;
-                // water streaks run vertically, so stretch the noise along Y
+              
                 float streak = Fbm(float3((wp.x + wp.z) * 1.7, wp.y * 0.18, (wp.x - wp.z) * 0.3));
                 streak = smoothstep(0.45, 0.8, streak) * saturate(h / _CeilingHeight + 0.3);
                 // big stains and blotches
@@ -253,7 +254,7 @@ Shader "Echo/FacilityWall"
                 half slope = saturate(dot(normalWS, nWS));
                 albedo *= lerp(1.0h, pow(slope, 16.0h), _CavityStrength);
 
-                // ---- power state: 0 = dark, 1 = bright ----
+                //  power state: 0 = dark, 1 = bright 
                 half p = saturate(_UseGlobalPower > 0.5 ? _FacilityPower : _LocalPower);
 
                 SurfaceData surf = (SurfaceData)0;
@@ -288,7 +289,23 @@ Shader "Echo/FacilityWall"
 
                 inputData.bakedGI = half3(0, 0, 0);
                 half4 color = UniversalFragmentPBR(inputData, surf); // direct lights only
-                color.rgb = color.rgb * _LightInfluence + ambient;   // lights only nudge the result
+
+                // Colour follows the lamp
+                // (red alarm pulses show up on the walls, white restore flicker too).
+                half3 spill = half3(0, 0, 0);
+                #if defined(_ADDITIONAL_LIGHTS)
+                    uint pixelLightCount = GetAdditionalLightsCount();
+                    LIGHT_LOOP_BEGIN(pixelLightCount)
+                        Light al = GetAdditionalLight(lightIndex, input.positionWS, inputData.shadowMask);
+                        half wrap = saturate(dot(nWS, al.direction) * 0.5h + 0.5h);
+                        wrap *= wrap;
+                        spill += al.color * (al.distanceAttenuation * al.shadowAttenuation * wrap);
+                    LIGHT_LOOP_END
+                #endif
+
+                color.rgb = color.rgb * _LightGain
+                          + spill * surf.albedo * surf.occlusion * _LightWrap
+                          + ambient;
                 color.rgb = MixFog(color.rgb, inputData.fogCoord);
                 color.a = 1;
                 return color;
