@@ -1,12 +1,5 @@
 using UnityEngine;
 
-/// Horror-style light behaviour:
-/// - Idle: subtle continuous flickering
-/// - Dying: stronger flickering with brief blackouts
-/// - Alert: red pulsing light
-/// - Off: completely disabled
-///
-/// Designed for Unity 6 / URP point lights.
 
 [RequireComponent(typeof(Light))]
 public class FlickeringLight : MonoBehaviour
@@ -94,25 +87,25 @@ public class FlickeringLight : MonoBehaviour
             return;
         }
 
-        // Remember the original light color.
+     
         baseColor = targetLight.color;
 
-        // Give each light a different flicker pattern.
+       
         noiseOffset = Random.Range(0f, 100f);
 
-        // Set a sensible indoor range.
+      
         if (overrideRange)
         {
             targetLight.range = lightRange;
         }
 
-        // Make sure the light starts in the correct state.
+      
         targetLight.enabled = mode != FlickerMode.Off;
     }
 
     private void Start()
     {
-        // Start the idle hum if one has been assigned.
+       
         if (mode != FlickerMode.Off)
         {
             PlayLoop(idleHum);
@@ -146,16 +139,13 @@ public class FlickeringLight : MonoBehaviour
         }
     }
 
-    // ============================================================
     // IDLE MODE
-    // ============================================================
+  
 
     private void HandleIdleFlicker()
     {
         targetLight.enabled = true;
 
-        // Perlin noise creates a smooth, natural-looking flicker
-        // instead of random harsh brightness changes.
         float noise = Mathf.PerlinNoise(
             Time.time * idleNoiseSpeed,
             noiseOffset
@@ -167,17 +157,16 @@ public class FlickeringLight : MonoBehaviour
             noise
         );
 
-        // Restore the normal light color.
+       
         targetLight.color = baseColor;
     }
 
-    // ============================================================
     // DYING MODE
-    // ============================================================
+    
 
     private void HandleDyingFlicker()
     {
-        // If the light is currently in a blackout.
+      
         if (isOff)
         {
             offTimer -= Time.deltaTime;
@@ -193,7 +182,7 @@ public class FlickeringLight : MonoBehaviour
 
         targetLight.enabled = true;
 
-        // Faster and more aggressive flickering.
+        
         float noise = Mathf.PerlinNoise(
             Time.time * idleNoiseSpeed * 2f,
             noiseOffset
@@ -207,7 +196,7 @@ public class FlickeringLight : MonoBehaviour
 
         targetLight.color = baseColor;
 
-        // Random chance of a blackout.
+   
         if (Random.value < dyingFlickerChance * Time.deltaTime * 60f)
         {
             isOff = true;
@@ -221,15 +210,15 @@ public class FlickeringLight : MonoBehaviour
         }
     }
 
-    // ============================================================
+    
     // ALERT MODE
-    // ============================================================
+    
 
     private void HandleAlert()
     {
         targetLight.enabled = true;
 
-        // Smooth pulse between 0 and 1.
+        
         float pulse =
             (Mathf.Sin(Time.time * alertPulseSpeed) * 0.5f)
             + 0.5f;
@@ -243,19 +232,15 @@ public class FlickeringLight : MonoBehaviour
         );
     }
 
-    // ============================================================
     // OFF MODE
-    // ============================================================
+    
 
     private void HandleOff()
     {
         targetLight.enabled = false;
     }
 
-    // ============================================================
-    // AUDIO
-    // ============================================================
-
+    
     private void PlayLoop(AudioClip clip)
     {
         if (audioSource == null || clip == null)
@@ -268,23 +253,17 @@ public class FlickeringLight : MonoBehaviour
         audioSource.Play();
     }
 
-    // ============================================================
-    // CHANGE MODE
-    // ============================================================
-
-    /// <summary>
-    /// Changes the current light behaviour.
-    /// Can be called by NPC AI, triggers, scripts, etc.
-    /// </summary>
+   
+   
     public void SetMode(FlickerMode newMode)
     {
         mode = newMode;
 
-        // Reset blackout state.
+       
         isOff = false;
         offTimer = 0f;
 
-        // Enable/disable the light immediately.
+       
         targetLight.enabled = newMode != FlickerMode.Off;
 
         // Handle audio.
@@ -312,37 +291,24 @@ public class FlickeringLight : MonoBehaviour
         }
     }
 
-    // ============================================================
-    // PUBLIC HELPER METHODS
-    // ============================================================
 
-    /// <summary>
-    /// Turns the light on normally.
-    /// </summary>
     public void TurnOn()
     {
         SetMode(FlickerMode.Idle);
     }
 
-    /// <summary>
-    /// Turns the light completely off.
-    /// </summary>
     public void TurnOff()
     {
         SetMode(FlickerMode.Off);
     }
 
-    /// <summary>
-    /// Starts the dying/stuttering light effect.
-    /// </summary>
+    
     public void StartDying()
     {
         SetMode(FlickerMode.Dying);
     }
 
-    /// <summary>
-    /// Starts the red alert effect.
-    /// </summary>
+    
     public void StartAlert()
     {
         SetMode(FlickerMode.Alert);

@@ -1,22 +1,21 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-// Animates ceiling drips and tells the floor/ceiling shaders where they are,
-// so ripples and puddles line up with each drop landing. Max 16 drips.
+
 public class FacilityDrips : MonoBehaviour
 {
     [System.Serializable]
     public class Drip
     {
         public Transform drop;
-        public Vector3 head;     // where the drop forms (world)
+        public Vector3 head;     // where the drop forms 
         public float floorY;
         public float fall;       // seconds to fall
         public float period;
         public float phase;
     }
 
-    public const float RippleLife = 1.8f;   // must match the floor shader
+    public const float RippleLife = 1.8f;   //  match the floor 
     public List<Drip> drips = new List<Drip>();
 
     static readonly int DripDataId = Shader.PropertyToID("_DripData");

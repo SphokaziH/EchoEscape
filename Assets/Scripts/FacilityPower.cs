@@ -1,7 +1,7 @@
 using UnityEngine;
 
 // Global power state. Call FacilityPower.Restore() from your generator puzzle.
-// Also drives the wall shader brightness through WallPower, so lights and walls change together.
+
 public class FacilityPower : MonoBehaviour
 {
     public bool startPowered = false;

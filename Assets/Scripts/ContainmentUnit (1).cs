@@ -4,14 +4,7 @@ using UnityEngine.AI;
 using UnityEngine.Events;
 using UnityEngine.Rendering;
 
-/// <summary>
-/// Round containment cage (URP) with mechanical curved doors.
-/// - Starts with the doors OPEN (the creature has escaped).
-/// - When Echo walks inside, the doors slam shut fast and trap him (and Echo is frozen).
-/// - Fires OnEchoTrapped so your game can unlock the exit / win condition.
-/// Drop on an empty GameObject; pivot = floor, centre of the cage.
-/// Angles: 0 = +X, 90 = +Z (degrees around Y).
-/// </summary>
+
 [ExecuteAlways]
 public class ContainmentUnit : MonoBehaviour
 {
@@ -58,7 +51,7 @@ public class ContainmentUnit : MonoBehaviour
     public Color trappedColor = new Color(1f, 0.1f, 0.06f);
     public UnityEvent onEchoTrapped;
 
-    /// <summary>Fires once when the doors finish closing with Echo inside. Hook your win condition here.</summary>
+   
     public static event System.Action OnEchoTrapped;
     public static bool EchoTrapped { get; private set; }
 
@@ -86,7 +79,6 @@ public class ContainmentUnit : MonoBehaviour
     void OnEnable() { Build(); }
     void OnDisable() { Clear(); }
 
-    // ------------------------------------------------------------------ utility
     static Vector3 Dir(float deg)
     {
         float r = deg * Mathf.Deg2Rad;
@@ -115,7 +107,6 @@ public class ContainmentUnit : MonoBehaviour
         owned.Clear();
     }
 
-    // ------------------------------------------------------------------ build
     [ContextMenu("Rebuild")]
     public void Build()
     {
@@ -130,7 +121,7 @@ public class ContainmentUnit : MonoBehaviour
         float midY = baseHeight + glassHeight * 0.5f;
         float half = doorArc * 0.5f;
 
-        // ---------- materials ----------
+      
         Material metal = Mat(Color.white, 0.75f, 0.45f, Grime(new Color(0.17f, 0.18f, 0.18f)), 4f);
         Material redTrim = Mat(Color.white, 0.55f, 0.5f, Grime(new Color(0.42f, 0.07f, 0.05f)), 4f);
         Material dark = Mat(new Color(0.04f, 0.045f, 0.045f), 0.6f, 0.35f);
@@ -142,7 +133,7 @@ public class ContainmentUnit : MonoBehaviour
         Color amber = new Color(1f, 0.55f, 0.05f);
         statusMat = Mat(Dim(amber, 0.1f), 0f, 0.5f, null, 1f, amber * 2.2f);
 
-        // ---------- low plinth ----------
+       
         Part("Base", Lathe(new[]
         {
             new Vector2(baseR, 0f),
@@ -162,7 +153,7 @@ public class ContainmentUnit : MonoBehaviour
         Part("GasketBottom", Ring(baseHeight), rubber, false);
         Part("GasketTop", Ring(topY - 0.07f), rubber, false);
 
-        // ---------- canopy ----------
+       
         float cr = radius + 0.22f;
         Part("Canopy", Lathe(new[]
         {
@@ -191,7 +182,7 @@ public class ContainmentUnit : MonoBehaviour
             }, 24), metal, false);
         }
 
-        // ---------- interior ribs (clear of the doorways) ----------
+        
         Mesh postMesh = Lathe(new[]
         {
             new Vector2(0.03f, 0f),
@@ -207,7 +198,7 @@ public class ContainmentUnit : MonoBehaviour
             p.transform.localPosition = Dir(a) * (radius - 0.07f) + new Vector3(0, baseHeight, 0);
         }
 
-        // ---------- bolts on the plinth (clear of the doorways) ----------
+     
         Mesh boltMesh = Lathe(new[]
         {
             new Vector2(0.025f, 0f),
@@ -223,7 +214,7 @@ public class ContainmentUnit : MonoBehaviour
             b.transform.localPosition = Dir(a) * (radius + 0.17f) + new Vector3(0, baseHeight, 0);
         }
 
-        // ---------- glass wall with doorway openings ----------
+       
         var outer = Part("GlassOuter", GlassShell(radius, false), glass, glassCollider);
         outer.transform.localPosition = new Vector3(0, baseHeight, 0);
         outer.GetComponent<Renderer>().shadowCastingMode = ShadowCastingMode.Off;
@@ -231,14 +222,13 @@ public class ContainmentUnit : MonoBehaviour
         inner.transform.localPosition = new Vector3(0, baseHeight, 0);
         inner.GetComponent<Renderer>().shadowCastingMode = ShadowCastingMode.Off;
 
-        // ---------- doorways: frame, ramp, status strip, two sliding door halves ----------
         BuildDoorway(doorAngle, baseR, metal, redTrim, hazard, statusMat);
         if (twoDoorways) BuildDoorway(doorAngle + 180f, baseR, metal, redTrim, hazard, statusMat);
 
-        // ---------- console beside the cage, between the doorways ----------
+        
         BuildConsole(baseR, doorAngle + 90f, metal, redTrim, dark, hazard);
 
-        // ---------- interior light ----------
+       
         var lgo = new GameObject("InteriorGlow");
         lgo.transform.SetParent(root, false);
         lgo.transform.localPosition = new Vector3(0, midY, 0);
@@ -257,7 +247,6 @@ public class ContainmentUnit : MonoBehaviour
             f.dropoutChance = 0.01f;
         }
 
-        // ---------- audio for the doors ----------
         audioSrc = root.gameObject.AddComponent<AudioSource>();
         audioSrc.playOnAwake = false;
         audioSrc.spatialBlend = 1f;
@@ -266,7 +255,7 @@ public class ContainmentUnit : MonoBehaviour
         foreach (var t in root.GetComponentsInChildren<Transform>(true))
             t.gameObject.hideFlags = HideFlags.DontSave;
 
-        // ---------- initial door state ----------
+        //  initial door state 
         closeProgress = 0f;
         openProgress = 0f;
         closingForEcho = false;
@@ -282,18 +271,18 @@ public class ContainmentUnit : MonoBehaviour
         return twoDoorways && Mathf.Abs(Mathf.DeltaAngle(deg, doorAngle + 180f)) < halfWidth;
     }
 
-    // ------------------------------------------------------------------ doorway
+    
     void BuildDoorway(float c, float baseR, Material metal, Material redTrim, Material hazard, Material status)
     {
         float half = doorArc * 0.5f;
         float topY = baseHeight + glassHeight;
         Vector3 dir = Dir(c);
 
-        // hazard-striped frame posts at the doorway edges
+        
         Part("FramePostA", ArcMesh(radius - 0.03f, radius + 0.045f, c - half - 2.5f, c - half, baseHeight, topY), hazard, true);
         Part("FramePostB", ArcMesh(radius - 0.03f, radius + 0.045f, c + half, c + half + 2.5f, baseHeight, topY), hazard, true);
 
-        // ramp from the floor up onto the plinth
+        
         float chord = 2f * (radius + 0.1f) * Mathf.Sin(half * Mathf.Deg2Rad) * 0.95f;
         if (baseHeight >= 0.02f)
         {
@@ -302,13 +291,13 @@ public class ContainmentUnit : MonoBehaviour
             ramp.transform.localRotation = Quaternion.LookRotation(dir);
         }
 
-        // status strip on the canopy above the doorway (amber = open, red = sealed)
+        //  (amber = open, red = sealed)
         var strip = Prim(root, PrimitiveType.Cube, "StatusStrip",
             dir * (radius + 0.23f) + new Vector3(0, topY + 0.05f, 0),
             new Vector3(chord * 0.6f, 0.05f, 0.03f), status, false);
         strip.transform.localRotation = Quaternion.LookRotation(dir);
 
-        // two door halves that slide around the cage and meet in the middle
+        
         negDoors.Add(MakeDoor("DoorA", c - half - 1f, c + 0.5f, true, 0f, metal, redTrim, hazard));
         posDoors.Add(MakeDoor("DoorB", c - 0.5f, c + half + 1f, false, 0.012f, metal, redTrim, hazard));
     }
@@ -346,7 +335,7 @@ public class ContainmentUnit : MonoBehaviour
     void ApplyDoors(float pos)
     {
         float slide = doorArc * 0.5f + 3f;
-        // Rotating about +Y moves a point to a SMALLER angle, so the lower half uses +Y.
+        
         foreach (var d in negDoors) if (d) d.localRotation = Quaternion.Euler(0f, slide * pos, 0f);
         foreach (var d in posDoors) if (d) d.localRotation = Quaternion.Euler(0f, -slide * pos, 0f);
     }
@@ -359,7 +348,7 @@ public class ContainmentUnit : MonoBehaviour
         statusMat.SetColor("_EmissionColor", c * 2.2f);
     }
 
-    // ------------------------------------------------------------------ door logic
+    // door logic
     void Update()
     {
         if (!Application.isPlaying) return;
@@ -420,7 +409,7 @@ public class ContainmentUnit : MonoBehaviour
         }
     }
 
-    /// <summary>Close the doors without needing Echo (testing).</summary>
+    /// Close the doors without needing Echo (testing).
     [ContextMenu("Test: Close Doors")]
     public void CloseNow()
     {
@@ -428,7 +417,7 @@ public class ContainmentUnit : MonoBehaviour
         else { ApplyDoors(0f); SetStatus(true); }
     }
 
-    /// <summary>Re-open the doors (testing, or if you want a reset). Does not release Echo.</summary>
+    /// Re-open the doors 
     [ContextMenu("Test: Open Doors")]
     public void OpenDoors()
     {
@@ -496,7 +485,7 @@ public class ContainmentUnit : MonoBehaviour
             var g = GameObject.FindWithTag(tag);
             return g ? g.transform : null;
         }
-        catch (UnityException) { return null; } // tag does not exist in the project
+        catch (UnityException) { return null; } 
     }
 
     void FreezeEcho()
@@ -523,14 +512,13 @@ public class ContainmentUnit : MonoBehaviour
         if (audioSrc && clip) audioSrc.PlayOneShot(clip);
     }
 
-    // ------------------------------------------------------------------ console
     void BuildConsole(float baseR, float angle, Material metal, Material redTrim, Material dark, Material hazard)
     {
         Vector3 dir = Dir(angle);
         var c = new GameObject("Console").transform;
         c.SetParent(root, false);
         c.localPosition = dir * (baseR + 0.2f);
-        c.localRotation = Quaternion.LookRotation(dir); // local +Z points away from the cage
+        c.localRotation = Quaternion.LookRotation(dir); 
 
         const float ch = 1.75f;
         Prim(c, PrimitiveType.Cube, "Body", new Vector3(0, ch / 2f, 0), new Vector3(0.62f, ch, 0.46f), metal, true);
@@ -561,7 +549,7 @@ public class ContainmentUnit : MonoBehaviour
         q.name = "Screen";
         q.transform.SetParent(parent, false);
         q.transform.localPosition = lp;
-        q.transform.localRotation = Quaternion.Euler(0, 180, 0); // a Unity quad is visible from -Z; flip it to face +Z
+        q.transform.localRotation = Quaternion.Euler(0, 180, 0); 
         q.transform.localScale = new Vector3(0.22f, 0.17f, 1f);
         var m = Mat(Dim(col, 0.1f), 0f, 0.8f, null, 1f, col * 1.5f);
         q.GetComponent<Renderer>().sharedMaterial = m;
@@ -578,7 +566,7 @@ public class ContainmentUnit : MonoBehaviour
 
     static Color Dim(Color c, float k) { return new Color(c.r * k, c.g * k, c.b * k, 1f); }
 
-    // ------------------------------------------------------------------ glass
+    //  glass
     Mesh GlassShell(float r, bool inwardFacing)
     {
         const int cols = 180, rows = 4;
@@ -604,7 +592,7 @@ public class ContainmentUnit : MonoBehaviour
         {
             Vector3 cen = (verts[i0] + verts[i1] + verts[i2]) / 3f;
             float deg = Mathf.Atan2(cen.z, cen.x) * Mathf.Rad2Deg;
-            if (InDoorZone(deg, doorArc * 0.5f)) return; // doorway: no glass here
+            if (InDoorZone(deg, doorArc * 0.5f)) return; // doorway
             if (Vector3.Dot(Vector3.Cross(verts[i1] - verts[i0], verts[i2] - verts[i0]), norms[i0]) < 0f)
             { int t = i1; i1 = i2; i2 = t; }
             tris.Add(i0); tris.Add(i1); tris.Add(i2);
@@ -627,7 +615,7 @@ public class ContainmentUnit : MonoBehaviour
         return mesh;
     }
 
-    // ------------------------------------------------------------------ meshes
+    // meshes
     Mesh Ring(float y)
     {
         return Lathe(new[]
@@ -639,7 +627,7 @@ public class ContainmentUnit : MonoBehaviour
         }, 64);
     }
 
-    /// <summary>Solid curved block: radius rIn..rOut, angles a0..a1 (degrees), heights y0..y1.</summary>
+ 
     Mesh ArcMesh(float rIn, float rOut, float a0, float a1, float y0, float y1)
     {
         int segs = Mathf.Max(2, Mathf.CeilToInt(Mathf.Abs(a1 - a0) / 3f));
@@ -721,7 +709,6 @@ public class ContainmentUnit : MonoBehaviour
         }
     }
 
-    /// <summary>Ramp: width w, runs len outward (+Z) from a top edge of height h down to the floor.</summary>
     Mesh Wedge(float w, float len, float h)
     {
         var v = new List<Vector3>();
@@ -756,10 +743,7 @@ public class ContainmentUnit : MonoBehaviour
         return mesh;
     }
 
-    /// <summary>
-    /// Revolve a (radius, height) profile around Y. Profile runs bottom-to-top on the outside, so the
-    /// outward normal of a segment is (dy, -dr). Hard edges between segments, smooth around the circle.
-    /// </summary>
+   
     Mesh Lathe(Vector2[] prof, int segs)
     {
         var v = new List<Vector3>();
@@ -837,7 +821,7 @@ public class ContainmentUnit : MonoBehaviour
         return go;
     }
 
-    // ------------------------------------------------------------------ materials / textures
+    // materials / textures
     Material Mat(Color c, float metallic, float smooth, Texture tex = null, float tile = 1f, Color? emission = null)
     {
         var m = Own(new Material(lit));
@@ -889,7 +873,7 @@ public class ContainmentUnit : MonoBehaviour
         return tex;
     }
 
-    /// <summary>Grimy base-colour texture: blotches, fine pitting and vertical streaks. Seamless horizontally.</summary>
+ 
     Texture2D Grime(Color baseCol)
     {
         const int w = 128, h = 128;
@@ -920,7 +904,7 @@ public class ContainmentUnit : MonoBehaviour
     }
 }
 
-/// <summary>Flicker / blink for a light and/or an emissive material.</summary>
+
 public class ContainmentFlicker : MonoBehaviour
 {
     public Light lightSource;
