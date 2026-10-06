@@ -1,7 +1,7 @@
 Shader "Horror/WetFacilityFloorURP"
 {
-    // World-space UVs: texture sizes are in METERS, so plane scale no longer matters.
-    // Uses URP's PBR lighting: point/spot lights, reflection probes, shadows, fog, SSAO all work.
+   
+    // Red alarm pulses, dim pre-power glow and the restore flicker all show up in the puddles.
     Properties
     {
         _MainTex        ("Albedo (RGB)", 2D) = "white" {}
@@ -33,6 +33,17 @@ Shader "Horror/WetFacilityFloorURP"
         _EmissionColor  ("Emergency Emission Color", Color) = (0.9, 0.05, 0.05, 1)
         _PulseSpeed     ("Emission Pulse Speed", Float) = 1.2
         _PulseMin       ("Emission Pulse Min", Range(0,1)) = 0.1
+
+        [Header(Lamp light on the floor)]
+        _LightGain      ("Direct light gain", Range(0,6)) = 1.5
+
+        [Header(Ceiling light reflections in wet areas)]
+        _CeilingY       ("World Y of ceiling underside (floor Y + ceiling height)", Float) = 3.2
+        _LampDrop       ("Lamp distance below ceiling (m)", Float) = 0.315
+        _FixtureHalfSize("Fixture half width, half length (m)", Vector) = (0.075, 0.6, 0, 0)
+        _ReflStrength   ("Fixture reflection strength", Range(0,30)) = 4
+        _PoolStrength   ("Ceiling light-pool reflection", Range(0,6)) = 0.8
+        _PoolRadius     ("Ceiling light-pool radius (m)", Float) = 2.5
     }
 
     SubShader
@@ -75,6 +86,7 @@ Shader "Horror/WetFacilityFloorURP"
                 float4 _EmissionMap_ST;
                 float4 _Color;
                 float4 _EmissionColor;
+                float4 _FixtureHalfSize;
                 float _TileMeters;
                 float _NormalStrength;
                 float _AOStrength;
@@ -92,6 +104,12 @@ Shader "Horror/WetFacilityFloorURP"
                 float _DripRippleStrength;
                 float _PulseSpeed;
                 float _PulseMin;
+                float _LightGain;
+                float _CeilingY;
+                float _LampDrop;
+                float _ReflStrength;
+                float _PoolStrength;
+                float _PoolRadius;
             CBUFFER_END
 
             // Set every frame by FacilityDrips.cs
@@ -168,11 +186,11 @@ Shader "Horror/WetFacilityFloorURP"
 
                 float2 worldUV = IN.positionWS.xz;
 
-                // --- Puddles (crisp edges) ---
+                //  Puddles (crisp edges) 
                 half mask = SAMPLE_TEXTURE2D(_WetnessMask, sampler_WetnessMask, worldUV / _PuddleMeters).r;
                 half wet = smoothstep(0.45, 0.55, mask + (_WetnessAmount - 0.5));
 
-                // --- A permanent puddle under every ceiling drip ---
+                //  A permanent puddle under every ceiling drip 
                 int dripN = (int)_DripCount;
                 [loop] for (int di = 0; di < dripN; di++)
                 {
@@ -181,12 +199,12 @@ Shader "Horror/WetFacilityFloorURP"
                     wet = max(wet, (half)puddle);
                 }
 
-                // --- Parallax (flattened inside puddles) ---
+                //   (flattened inside puddles) 
                 float2 uv = worldUV / _TileMeters;
                 half height = SAMPLE_TEXTURE2D(_HeightMap, sampler_HeightMap, uv).r;
                 uv += (height - 0.5) * _ParallaxScale * (1.0 - wet) * (viewTS.xy / (viewTS.z + 0.42));
 
-                // --- Normal: concrete detail + ripples inside puddles ---
+                //  Normal: concrete detail + ripples inside puddles 
                 half3 nTS = UnpackNormal(SAMPLE_TEXTURE2D(_BumpMap, sampler_BumpMap, uv));
                 nTS.xy *= _NormalStrength;
 
@@ -195,7 +213,7 @@ Shader "Horror/WetFacilityFloorURP"
                 float2 g = RippleGradient(worldUV / _RippleCellMeters, _Time.y * _RippleRate);
                 nTS.xy += (-g * _RippleStrength * fade * wet);
 
-                // --- Rings from each drip landing (timing matches the falling drop) ---
+                //  Rings from each drip landing (timing matches the falling drop) 
                 [loop] for (int dj = 0; dj < dripN; dj++)
                 {
                     float4 dv4 = _DripData[dj];
@@ -213,7 +231,7 @@ Shader "Horror/WetFacilityFloorURP"
 
                 float3 normalWS = normalize(mul(nTS, TBN));
 
-                // --- Surface ---
+                //  Surface 
                 half3 albedo = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uv).rgb * _Color.rgb;
                 albedo *= lerp(1.0, 1.0 - _WetDarken, wet);
 
@@ -236,19 +254,75 @@ Shader "Horror/WetFacilityFloorURP"
                 s.alpha = 1;
                 s.normalTS = half3(0, 0, 1);
 
-                InputData d = (InputData)0;
-                d.positionWS = IN.positionWS;
-                d.positionCS = IN.positionHCS;
-                d.normalWS = normalWS;
-                d.viewDirectionWS = viewWS;
-                d.shadowCoord = TransformWorldToShadowCoord(IN.positionWS);
-                d.fogCoord = IN.fogFactor;
-                d.vertexLighting = half3(0, 0, 0);
-                d.bakedGI = SampleSH(normalWS);
-                d.normalizedScreenSpaceUV = GetNormalizedScreenSpaceUV(IN.positionHCS);
-                d.shadowMask = half4(1, 1, 1, 1);
+               
+                InputData inputData = (InputData)0;
+                inputData.positionWS = IN.positionWS;
+                inputData.positionCS = IN.positionHCS;
+                inputData.normalWS = normalWS;
+                inputData.viewDirectionWS = viewWS;
+                inputData.shadowCoord = TransformWorldToShadowCoord(IN.positionWS);
+                inputData.fogCoord = IN.fogFactor;
+                inputData.vertexLighting = half3(0, 0, 0);
+                inputData.bakedGI = SampleSH(normalWS);
+                inputData.normalizedScreenSpaceUV = GetNormalizedScreenSpaceUV(IN.positionHCS);
+                inputData.shadowMask = half4(1, 1, 1, 1);
 
-                half4 color = UniversalFragmentPBR(d, s);
+                half4 color = UniversalFragmentPBR(inputData, s);
+                color.rgb *= _LightGain;
+
+                //  Mirror of the ceiling lights in wet areas 
+                #if defined(_ADDITIONAL_LIGHTS)
+                if (wet > 0.02)
+                {
+                    float3 P = IN.positionWS;
+                    float3 R = reflect(-viewWS, normalWS);          // mirror direction off the rippled surface
+
+                    if (R.y > 0.03)
+                    {
+                        float fixY  = _CeilingY - 0.02;             // underside of the fixture boxes
+                        float lampY = _CeilingY - _LampDrop;        // where Build() puts the Light
+                        float tFix  = (fixY - P.y) / R.y;
+                        float tCeil = (_CeilingY - P.y) / R.y;
+                        float2 hitFix  = P.xz + R.xz * tFix;
+                        float2 hitCeil = P.xz + R.xz * tCeil;
+
+                        // blur grows with roughness and with how far the reflected ray travels
+                        float soft = 0.03 + (1.0 - smoothness) * tFix * 0.5;
+                        float2 halfSize = _FixtureHalfSize.xy;       // x = width, y = length (Z)
+                        float poolR2 = max(_PoolRadius * _PoolRadius, 0.01);
+
+                        half3 mirror = half3(0, 0, 0);
+                        uint pixelLightCount = GetAdditionalLightsCount();
+                        LIGHT_LOOP_BEGIN(pixelLightCount)
+                            Light rl = GetAdditionalLight(lightIndex, IN.positionWS, inputData.shadowMask);
+                            float3 Ldir = rl.direction;               // pixel -> lamp
+                            if (Ldir.y > 0.05)
+                            {
+                                // rebuild lamp position from its known height
+                                float3 lampPos = P + Ldir * ((lampY - P.y) / Ldir.y);
+
+                                float2 q = abs(hitFix - lampPos.xz) - halfSize;
+                                float box = (1.0 - smoothstep(-soft, soft, q.x))
+                                          * (1.0 - smoothstep(-soft, soft, q.y));
+
+                                float2 oc = hitCeil - lampPos.xz;
+                                float pool = exp(-dot(oc, oc) / poolR2);
+
+                                // fade out near the lamp's range edge only
+                                float rangeFade = saturate(rl.distanceAttenuation * 100.0);
+
+                                mirror += rl.color * (box * _ReflStrength + pool * _PoolStrength) * rangeFade;
+                            }
+                        LIGHT_LOOP_END
+
+                        // Fresnel
+                        float ndv = saturate(dot(normalWS, viewWS));
+                        float fres = lerp(0.3, 1.0, pow(1.0 - ndv, 4.0));
+                        color.rgb += mirror * (half)(wet * fres * smoothstep(0.4, 0.9, smoothness));
+                    }
+                }
+                #endif
+
                 color.rgb = MixFog(color.rgb, IN.fogFactor);
                 return half4(color.rgb, 1);
             }
