@@ -1,11 +1,9 @@
 using UnityEngine;
 
-// Drives one ceiling fixture.
-// Before power: red = alarm pulse, white = dim with stutters.
-// After FacilityPower.Restore(): lights flicker on one by one, then go bright white.
+
 public class CeilingLightPulse : MonoBehaviour
 {
-    public Light lamp;            // can be null (fixture glows but casts no light)
+    public Light lamp;            
     public Renderer fixture;
     public bool isRed = true;
     public Color color = Color.red;
