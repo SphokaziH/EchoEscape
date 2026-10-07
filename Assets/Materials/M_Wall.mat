@@ -38,6 +38,10 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
+    - _AOMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _BaseMap:
         m_Texture: {fileID: 2800000, guid: 492a41aed3b0f33458aa0b58af79eafb, type: 3}
         m_Scale: {x: 1, y: 1}
@@ -63,7 +67,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 492a41aed3b0f33458aa0b58af79eafb, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
@@ -79,7 +83,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _RoughnessMap:
-        m_Texture: {fileID: 2800000, guid: d079eeb2a7bb63748b660f980610acb3, type: 3}
+        m_Texture: {fileID: 2800000, guid: 60a3f3260ff30ef4fbf0bf586c6162aa, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SpecGlossMap:
@@ -100,7 +104,9 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - _AOStrength: 0.5
     - _AddPrecomputedVelocity: 0
+    - _AdditionalLightGain: 0.85
     - _AlphaClip: 0
     - _AlphaToMask: 0
     - _AmbientOff: 0.05
@@ -122,28 +128,40 @@ Material:
     - _DirtAmount: 0.016
     - _DstBlend: 0
     - _DstBlendAlpha: 0
+    - _EmergencyStrength: 0.1
     - _EnvironmentReflections: 1
     - _FloorGrimeHeight: 1.2
     - _FloorY: 0
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
+    - _GrimeDarken: 0.08
     - _KeyLightStrength: 0.275
+    - _LightGain: 1.5
     - _LightInfluence: 0.33
+    - _LightWrap: 0.8
     - _LocalPower: 0.023
+    - _MainLightGain: 1
     - _Metallic: 0
+    - _NormalStrength: 0.5
     - _OcclusionStrength: 1
     - _OffAlbedo: 0.199
     - _Parallax: 0.005
+    - _PowerLightInfluence: 1
+    - _PowerOff: 0.1
+    - _PowerOn: 1
     - _QueueOffset: 0
     - _ReceiveShadows: 1
     - _Smoothness: 0.5
     - _SmoothnessScale: 0
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
+    - _SpecularPower: 48
+    - _SpecularStrength: 0.22
     - _SrcBlend: 1
     - _SrcBlendAlpha: 1
     - _Surface: 0
+    - _TextureTiling: 1
     - _TileSize: 2
     - _UseGlobalPower: 1
     - _WorkflowMode: 1
@@ -154,8 +172,10 @@ Material:
     - _BaseColor: {r: 0.9169811, g: 0.8769015, b: 0.8356639, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _DirtColor: {r: 0.2679245, g: 0.23389925, b: 0.17945886, a: 1}
+    - _EmergencyTint: {r: 0.6754716, g: 0.65661633, b: 0.6563545, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _KeyLightDir: {r: 0.4, g: -0.7, b: 0.3, a: 0}
+    - _PowerTint: {r: 0.82, g: 0.86, b: 0.8, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

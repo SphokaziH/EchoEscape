@@ -1,66 +1,125 @@
-using System.Collections;
 using UnityEngine;
 
-
-/// 0 = power off (dark walls), 1 = power on (bright walls).
-
+/// <summary>
+/// Global wall-material power state.
+/// FacilityPower calls Set(0), then PowerOn(2f) when the generator is restored.
+/// The wall shader reads the global _WallPower value.
+/// </summary>
 public static class WallPower
 {
-    static readonly int PowerId = Shader.PropertyToID("_FacilityPower");
+    const string ShaderProperty = "_WallPower";
 
-    public static float Current { get; private set; }
+    static float currentPower = 0f;
+    static float startPower = 0f;
+    static float targetPower = 0f;
+    static float transitionStart = -1f;
+    static float transitionDuration = 0f;
 
-    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-    static void ResetOnPlay() { Set(0f); }
+    static bool initialized;
+
+    static void EnsureInitialized()
+    {
+        if (initialized) return;
+
+        initialized = true;
+        currentPower = 0f;
+        targetPower = 0f;
+        Shader.SetGlobalFloat(ShaderProperty, 0f);
+    }
 
     public static void Set(float value)
     {
-        Current = Mathf.Clamp01(value);
-        Shader.SetGlobalFloat(PowerId, Current);
+        EnsureInitialized();
+
+        currentPower = Mathf.Clamp01(value);
+        startPower = currentPower;
+        targetPower = currentPower;
+        transitionStart = -1f;
+        transitionDuration = 0f;
+
+        Shader.SetGlobalFloat(ShaderProperty, currentPower);
     }
 
- 
-    public static void PowerOn(float duration = 2.5f)
+    public static void PowerOn(float duration)
     {
-        Runner.Run(Flicker(duration, true));
+        EnsureInitialized();
+
+        startPower = currentPower;
+        targetPower = 1f;
+
+        transitionStart = Time.time;
+        transitionDuration = Mathf.Max(0.01f, duration);
+
+        Shader.SetGlobalFloat(ShaderProperty, currentPower);
     }
 
-   
-    public static void PowerOff(float duration = 1.2f)
+    public static float Current => currentPower;
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+    static void InitializeOnLoad()
     {
-        Runner.Run(Flicker(duration, false));
+        initialized = false;
+        EnsureInitialized();
     }
 
-    static IEnumerator Flicker(float duration, bool turningOn)
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+    static void StartUpdater()
     {
-        float t = 0f;
-        while (t < duration)
+        WallPowerUpdater.Create();
+    }
+
+    sealed class WallPowerUpdater : MonoBehaviour
+    {
+        static WallPowerUpdater instance;
+
+        public static void Create()
         {
-            float k = t / duration;
-            float chanceOn = turningOn ? k : 1f - k; 
-            Set(Random.value < chanceOn ? Random.Range(0.8f, 1f) : Random.Range(0f, 0.15f));
-            float hold = Random.Range(0.03f, 0.14f);
-            yield return new WaitForSeconds(hold);
-            t += hold;
+            if (instance != null) return;
+
+            GameObject go = new GameObject("WallPowerUpdater");
+            DontDestroyOnLoad(go);
+            instance = go.AddComponent<WallPowerUpdater>();
         }
-        Set(turningOn ? 1f : 0f);
-    }
 
-   
-    class Runner : MonoBehaviour
-    {
-        static Runner instance;
-
-        public static void Run(IEnumerator routine)
+        void Update()
         {
-            if (instance == null)
+            EnsureInitialized();
+
+            if (transitionStart >= 0f)
             {
-                var go = new GameObject("WallPowerRunner");
-                UnityEngine.Object.DontDestroyOnLoad(go);
-                instance = go.AddComponent<Runner>();
+                float t =
+                    Mathf.Clamp01(
+                        (Time.time - transitionStart) /
+                        transitionDuration
+                    );
+
+                // Smooth electrical fade.
+                float eased =
+                    t * t * (3f - 2f * t);
+
+                currentPower =
+                    Mathf.Lerp(
+                        startPower,
+                        targetPower,
+                        eased
+                    );
+
+                Shader.SetGlobalFloat(
+                    ShaderProperty,
+                    currentPower
+                );
+
+                if (t >= 1f)
+                {
+                    currentPower = targetPower;
+                    transitionStart = -1f;
+
+                    Shader.SetGlobalFloat(
+                        ShaderProperty,
+                        currentPower
+                    );
+                }
             }
-            instance.StopAllCoroutines();
-            instance.StartCoroutine(routine);
         }
     }
 }

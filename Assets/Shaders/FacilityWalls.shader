@@ -1,321 +1,754 @@
-// URP wall shader for AmbientCG Plaster001 (Color, NormalGL, Roughness, AmbientOcclusion).
-
-Shader "Echo/FacilityWall"
+Shader "Horror/FacilityWalls"
 {
     Properties
     {
-        [Header(Plaster maps)]
-        _BaseMap("Color", 2D) = "white" {}
-        _BaseColor("Tint", Color) = (0.5, 0.52, 0.5, 1)
-        [Normal] _BumpMap("Normal (NormalGL)", 2D) = "bump" {}
-        _BumpScale("Normal Strength", Range(0, 2)) = 1.2
-        _RoughnessMap("Roughness", 2D) = "white" {}
-        _SmoothnessScale("Smoothness Scale (keep low for plaster)", Range(0, 1)) = 0.1
-        _OcclusionMap("Ambient Occlusion", 2D) = "white" {}
-        _OcclusionStrength("AO Strength", Range(0, 1)) = 1
+        [MainTexture] _MainTex ("Wall Albedo", 2D) = "white" {}
+        _BumpMap ("Wall Normal", 2D) = "bump" {}
+        _RoughnessMap ("Roughness", 2D) = "white" {}
+        _AOMap ("Ambient Occlusion", 2D) = "white" {}
 
-        [Header(Relief without moving lights)]
-        _KeyLightDir("Fake key light direction (world, points where light travels)", Vector) = (0.4, -0.7, 0.3, 0)
-        _KeyLightStrength("Fake key light strength", Range(0, 1)) = 0.5
-        _CavityStrength("Cavity darkening in grooves", Range(0, 1)) = 0.6
-
-        [Header(Mapping)]
-        _TileSize("Metres per texture repeat", Float) = 2
-        _BlendSharpness("Triplanar Blend Sharpness", Range(1, 16)) = 6
-
-        [Header(Grime and decay)]
-        _Desaturate("Desaturate", Range(0, 1)) = 0.35
-        _DirtAmount("Dirt Amount", Range(0, 1)) = 0.85
-        _DirtColor("Dirt Colour (multiplier)", Color) = (0.22, 0.2, 0.17, 1)
-        _FloorY("World Y of the floor", Float) = 0
-        _FloorGrimeHeight("Floor grime height (m)", Float) = 1.2
-        _CeilingHeight("Ceiling height above floor (m)", Float) = 3
-        _CeilingGrimeHeight("Ceiling grime height (m)", Float) = 0.8
+        [MainColor] _Color ("Wall Tint", Color) = (0.72, 0.74, 0.70, 1)
+        _TextureTiling ("Texture Tiling", Range(0.1, 10)) = 1.0
+        _NormalStrength ("Normal Strength", Range(0,2)) = 0.75
+        _AOStrength ("AO Strength", Range(0,1)) = 0.65
 
         [Header(Power)]
-        [Toggle] _UseGlobalPower("Use global power (_FacilityPower)", Float) = 1
-        _LocalPower("Local power (when not global)", Range(0, 1)) = 0
-        _OffAlbedo("Surface brightness, power off", Range(0, 1)) = 0.6
-        _AmbientOff("Ambient light, power off", Range(0, 1)) = 0.05
-        _AmbientOn("Ambient light, power on", Range(0, 2)) = 0.35
-        _AmbientTint("Ambient tint", Color) = (0.8, 0.88, 0.85, 1)
+        _PowerOff ("Power Off Brightness", Range(0,1)) = 0.10
+        _PowerOn ("Power On Brightness", Range(0,2)) = 1.0
+        _PowerLightInfluence ("Power Light Influence", Range(0,2)) = 1.0
+        _PowerTint ("Power Tint", Color) = (0.82, 0.86, 0.80, 1)
 
-        [Header(Lamp light on the walls)]
-        _LightGain("Direct light gain (raise to make lamps pop)", Range(0, 8)) = 1.5
-        _LightWrap("Light spill / wrap (soft glow near lamps)", Range(0, 4)) = 0.8
+        [Header(Direct Light)]
+        _MainLightGain ("Main Light Gain", Range(0,2)) = 1.0
+        _AdditionalLightGain ("Additional Light Gain", Range(0,2)) = 0.85
+        _SpecularStrength ("Specular Strength", Range(0,1)) = 0.22
+        _SpecularPower ("Specular Sharpness", Range(8,128)) = 48
+
+       [Header(Horror Emergency)]
+       _EmergencyTint ("Emergency Tint", Color) = (0.30, 0.015, 0.01, 1)
+       _EmergencyStrength ("Emergency Tint Strength", Range(0,1)) = 0.10
+       _GrimeDarken ("Extra Grime Darkness", Range(0,1)) = 0.08
     }
 
     SubShader
     {
         Tags
         {
-            "RenderPipeline" = "UniversalPipeline"
-            "RenderType" = "Opaque"
-            "Queue" = "Geometry"
+            "RenderType"="Opaque"
+            "RenderPipeline"="UniversalPipeline"
+            "Queue"="Geometry"
         }
+
+        LOD 200
 
         Pass
         {
             Name "ForwardLit"
-            Tags { "LightMode" = "UniversalForward" }
+
+            Tags
+            {
+                "LightMode"="UniversalForward"
+            }
 
             HLSLPROGRAM
+
             #pragma target 3.5
+
             #pragma vertex vert
             #pragma fragment frag
 
-            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
-            #pragma multi_compile _ _ADDITIONAL_LIGHTS
-            #pragma multi_compile _ _FORWARD_PLUS
-            #pragma multi_compile _ _CLUSTER_LIGHT_LOOP
-            #pragma multi_compile_fragment _ _ADDITIONAL_LIGHT_SHADOWS
-            #pragma multi_compile_fragment _ _SHADOWS_SOFT
-            #pragma multi_compile_fog
-            #pragma multi_compile_instancing
+            // ============================================================
+            // MAIN LIGHT
+            // ============================================================
 
-            // Plaster does not mirror the sky. 
-            #define _ENVIRONMENTREFLECTIONS_OFF 1
+            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS
+            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS_CASCADE
+            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS_SCREEN
+
+            // ============================================================
+            // ADDITIONAL LIGHTS
+            //
+            // This is important for your FacilityCeilingBuilder.
+            // Your generated red/white lights use LightType.Point.
+            // ============================================================
+
+            #pragma multi_compile _ _ADDITIONAL_LIGHTS_VERTEX _ADDITIONAL_LIGHTS
+
+            #pragma multi_compile_fragment _ _ADDITIONAL_LIGHT_SHADOWS
+
+            #pragma multi_compile_fragment _ _SHADOWS_SOFT
+
+
+            // ============================================================
+            // URP
+            // ============================================================
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 
-            TEXTURE2D(_BaseMap);      SAMPLER(sampler_BaseMap);
-            TEXTURE2D(_BumpMap);
-            TEXTURE2D(_RoughnessMap);
-            TEXTURE2D(_OcclusionMap);
 
-            float _FacilityPower; // global, set by WallPower.cs
+            // ============================================================
+            // TEXTURES
+            // ============================================================
+
+            TEXTURE2D(_MainTex);
+            SAMPLER(sampler_MainTex);
+
+            TEXTURE2D(_BumpMap);
+            SAMPLER(sampler_BumpMap);
+
+            TEXTURE2D(_RoughnessMap);
+            SAMPLER(sampler_RoughnessMap);
+
+            TEXTURE2D(_AOMap);
+            SAMPLER(sampler_AOMap);
+
+
+            // ============================================================
+            // MATERIAL VARIABLES
+            // ============================================================
 
             CBUFFER_START(UnityPerMaterial)
-                half4 _BaseColor;
-                half _BumpScale;
-                half _SmoothnessScale;
-                half _OcclusionStrength;
-                float _TileSize;
-                float _BlendSharpness;
-                half _Desaturate;
-                half _DirtAmount;
-                half4 _DirtColor;
-                float _FloorY;
-                float _FloorGrimeHeight;
-                float _CeilingHeight;
-                float _CeilingGrimeHeight;
-                half _UseGlobalPower;
-                half _LocalPower;
-                float4 _KeyLightDir;
-                half _KeyLightStrength;
-                half _CavityStrength;
-                half _OffAlbedo;
-                half _AmbientOff;
-                half _AmbientOn;
-                half4 _AmbientTint;
-                half _LightGain;
-                half _LightWrap;
+
+                float4 _MainTex_ST;
+
+                float4 _Color;
+
+                float4 _PowerTint;
+
+                float4 _EmergencyTint;
+
+
+                float _TextureTiling;
+
+                float _NormalStrength;
+
+                float _AOStrength;
+
+
+                float _PowerOff;
+
+                float _PowerOn;
+
+                float _PowerLightInfluence;
+
+
+                float _MainLightGain;
+
+                float _AdditionalLightGain;
+
+                float _SpecularStrength;
+
+                float _SpecularPower;
+
+
+                float _EmergencyStrength;
+
+                float _GrimeDarken;
+
             CBUFFER_END
 
-            float Hash13(float3 p)
-            {
-                p = frac(p * 0.1031);
-                p += dot(p, p.zyx + 31.32);
-                return frac((p.x + p.y) * p.z);
-            }
 
-            float VNoise(float3 p)
-            {
-                float3 i = floor(p);
-                float3 f = frac(p);
-                f = f * f * (3.0 - 2.0 * f);
-                float n000 = Hash13(i);
-                float n100 = Hash13(i + float3(1, 0, 0));
-                float n010 = Hash13(i + float3(0, 1, 0));
-                float n110 = Hash13(i + float3(1, 1, 0));
-                float n001 = Hash13(i + float3(0, 0, 1));
-                float n101 = Hash13(i + float3(1, 0, 1));
-                float n011 = Hash13(i + float3(0, 1, 1));
-                float n111 = Hash13(i + float3(1, 1, 1));
-                return lerp(lerp(lerp(n000, n100, f.x), lerp(n010, n110, f.x), f.y),
-                            lerp(lerp(n001, n101, f.x), lerp(n011, n111, f.x), f.y), f.z);
-            }
+            // ============================================================
+            // GLOBAL POWER VALUE
+            //
+            // WallPower.cs controls this.
+            //
+            // 0 = power off
+            // 1 = fully restored
+            // ============================================================
 
-            float Fbm(float3 p)
-            {
-                float v = 0.0, a = 0.5;
-                for (int i = 0; i < 3; i++)
-                {
-                    v += a * VNoise(p);
-                    p *= 2.03;
-                    a *= 0.5;
-                }
-                return v;
-            }
+            float _WallPower;
+
+
+            // ============================================================
+            // VERTEX STRUCTURES
+            // ============================================================
 
             struct Attributes
             {
                 float4 positionOS : POSITION;
-                float3 normalOS   : NORMAL;
-                UNITY_VERTEX_INPUT_INSTANCE_ID
+
+                float3 normalOS : NORMAL;
+
+                float4 tangentOS : TANGENT;
+
+                float2 uv : TEXCOORD0;
             };
+
 
             struct Varyings
             {
-                float4 positionCS : SV_POSITION;
-                float3 positionWS : TEXCOORD0;
-                float3 normalWS   : TEXCOORD1;
-                half   fogFactor  : TEXCOORD2;
-                UNITY_VERTEX_INPUT_INSTANCE_ID
-                UNITY_VERTEX_OUTPUT_STEREO
+                float4 positionHCS : SV_POSITION;
+
+                float2 uv : TEXCOORD0;
+
+                float3 positionWS : TEXCOORD1;
+
+                float3 normalWS : TEXCOORD2;
+
+                float4 tangentWS : TEXCOORD3;
             };
 
-            Varyings vert(Attributes input)
+
+            // ============================================================
+            // VERTEX SHADER
+            // ============================================================
+
+            Varyings vert(Attributes IN)
             {
-                Varyings output = (Varyings)0;
-                UNITY_SETUP_INSTANCE_ID(input);
-                UNITY_TRANSFER_INSTANCE_ID(input, output);
-                UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
+                Varyings OUT;
 
-                VertexPositionInputs vp = GetVertexPositionInputs(input.positionOS.xyz);
-                VertexNormalInputs vn = GetVertexNormalInputs(input.normalOS);
 
-                output.positionCS = vp.positionCS;
-                output.positionWS = vp.positionWS;
-                output.normalWS = vn.normalWS;
-                output.fogFactor = ComputeFogFactor(vp.positionCS.z);
-                return output;
+                VertexPositionInputs positionInputs =
+                    GetVertexPositionInputs(
+                        IN.positionOS.xyz
+                    );
+
+
+                VertexNormalInputs normalInputs =
+                    GetVertexNormalInputs(
+                        IN.normalOS,
+                        IN.tangentOS
+                    );
+
+
+                OUT.positionHCS =
+                    positionInputs.positionCS;
+
+
+                // Keep the original mesh UVs.
+                //
+                // This is important for vertical walls.
+                // We do NOT use world XZ projection here.
+
+                OUT.uv =
+                    IN.uv;
+
+
+                OUT.positionWS =
+                    positionInputs.positionWS;
+
+
+                OUT.normalWS =
+                    normalInputs.normalWS;
+
+
+                OUT.tangentWS =
+                    float4(
+                        normalInputs.tangentWS,
+                        IN.tangentOS.w *
+                        GetOddNegativeScale()
+                    );
+
+
+                return OUT;
             }
 
-            half4 frag(Varyings input) : SV_Target
+
+            // ============================================================
+            // MAIN LIGHT
+            // ============================================================
+
+            half3 ApplyMainLight(
+                half3 albedo,
+                half3 normalWS,
+                half3 viewDirWS,
+                float3 positionWS,
+                half smoothness,
+                half ao
+            )
             {
-                UNITY_SETUP_INSTANCE_ID(input);
-                UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
+                half3 result = 0;
 
-                float3 nWS = normalize(input.normalWS);
-                float3 wp = input.positionWS;
 
-             
-                float3 blend = pow(abs(nWS), _BlendSharpness);
-                blend /= (blend.x + blend.y + blend.z + 1e-5);
+                Light mainLight =
+                    GetMainLight(
+                        TransformWorldToShadowCoord(
+                            positionWS
+                        )
+                    );
 
-                float2 uvX = wp.zy / _TileSize;
-                float2 uvY = wp.xz / _TileSize;
-                float2 uvZ = wp.xy / _TileSize;
 
-                half3 albedo =
-                    SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, uvX).rgb * blend.x +
-                    SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, uvY).rgb * blend.y +
-                    SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, uvZ).rgb * blend.z;
-                albedo *= _BaseColor.rgb;
+                half NdotL =
+                    saturate(
+                        dot(
+                            normalWS,
+                            mainLight.direction
+                        )
+                    );
 
-                half rough =
-                    SAMPLE_TEXTURE2D(_RoughnessMap, sampler_BaseMap, uvX).r * blend.x +
-                    SAMPLE_TEXTURE2D(_RoughnessMap, sampler_BaseMap, uvY).r * blend.y +
-                    SAMPLE_TEXTURE2D(_RoughnessMap, sampler_BaseMap, uvZ).r * blend.z;
 
-                half ao =
-                    SAMPLE_TEXTURE2D(_OcclusionMap, sampler_BaseMap, uvX).r * blend.x +
-                    SAMPLE_TEXTURE2D(_OcclusionMap, sampler_BaseMap, uvY).r * blend.y +
-                    SAMPLE_TEXTURE2D(_OcclusionMap, sampler_BaseMap, uvZ).r * blend.z;
+                half3 diffuse =
+                    albedo *
+                    mainLight.color *
+                    NdotL *
+                    mainLight.distanceAttenuation *
+                    mainLight.shadowAttenuation *
+                    _MainLightGain;
 
-              
-                half3 tnX = UnpackNormal(SAMPLE_TEXTURE2D(_BumpMap, sampler_BaseMap, uvX));
-                half3 tnY = UnpackNormal(SAMPLE_TEXTURE2D(_BumpMap, sampler_BaseMap, uvY));
-                half3 tnZ = UnpackNormal(SAMPLE_TEXTURE2D(_BumpMap, sampler_BaseMap, uvZ));
-                tnX.xy *= _BumpScale;
-                tnY.xy *= _BumpScale;
-                tnZ.xy *= _BumpScale;
 
-                tnX = half3(tnX.xy + nWS.zy, abs(tnX.z) * nWS.x);
-                tnY = half3(tnY.xy + nWS.xz, abs(tnY.z) * nWS.y);
-                tnZ = half3(tnZ.xy + nWS.xy, abs(tnZ.z) * nWS.z);
+                // Cheap Blinn-Phong style highlight.
 
-                float3 normalWS = normalize(tnX.zyx * blend.x + tnY.xzy * blend.y + tnZ.xyz * blend.z);
+                half3 halfDir =
+                    SafeNormalize(
+                        mainLight.direction +
+                        viewDirWS
+                    );
 
-              
-                half luma = dot(albedo, half3(0.299h, 0.587h, 0.114h));
-                albedo = lerp(half3(luma, luma, luma), albedo, 1.0h - _Desaturate);
 
-                float h = wp.y - _FloorY;
-              
-                float streak = Fbm(float3((wp.x + wp.z) * 1.7, wp.y * 0.18, (wp.x - wp.z) * 0.3));
-                streak = smoothstep(0.45, 0.8, streak) * saturate(h / _CeilingHeight + 0.3);
-                // big stains and blotches
-                float blotch = smoothstep(0.4, 0.75, Fbm(wp * 0.45));
-                // dirt gathers at the floor and under the ceiling
-                float floorG = 1.0 - saturate(h / max(_FloorGrimeHeight, 0.01));
-                floorG *= floorG;
-                float ceilG = saturate((h - (_CeilingHeight - _CeilingGrimeHeight)) / max(_CeilingGrimeHeight, 0.01));
-                ceilG *= ceilG;
+                half NdotH =
+                    saturate(
+                        dot(
+                            normalWS,
+                            halfDir
+                        )
+                    );
 
-                half dirt = saturate(streak * 0.55 + blotch * 0.45 + floorG * 0.9 + ceilG * 0.6) * _DirtAmount;
-                albedo = lerp(albedo, albedo * _DirtColor.rgb, dirt);
-                rough = saturate(rough + dirt * 0.2h);
 
-                // Cavity: darken where the normal map tilts away from the flat surface, so grooves
-                // and bumps read even with no light on them. Independent of camera and lights.
-                half slope = saturate(dot(normalWS, nWS));
-                albedo *= lerp(1.0h, pow(slope, 16.0h), _CavityStrength);
+                half specular =
+                    pow(
+                        NdotH,
+                        _SpecularPower
+                    ) *
+                    _SpecularStrength *
+                    smoothness;
 
-                //  power state: 0 = dark, 1 = bright 
-                half p = saturate(_UseGlobalPower > 0.5 ? _FacilityPower : _LocalPower);
 
-                SurfaceData surf = (SurfaceData)0;
-                surf.albedo = albedo * lerp(_OffAlbedo, 1.0h, p);
-                surf.metallic = 0;
-                surf.specular = 0;
-                surf.smoothness = saturate((1.0h - rough) * _SmoothnessScale);
-                surf.occlusion = lerp(1.0h, ao, _OcclusionStrength);
-                surf.emission = 0;
-                surf.alpha = 1;
-                surf.normalTS = half3(0, 0, 1);
+                result +=
+                    diffuse;
 
-                InputData inputData = (InputData)0;
-                inputData.positionWS = input.positionWS;
-                inputData.positionCS = input.positionCS;
-                inputData.normalWS = normalWS;
-                inputData.viewDirectionWS = GetWorldSpaceNormalizeViewDir(input.positionWS);
-                inputData.shadowCoord = TransformWorldToShadowCoord(input.positionWS);
-                inputData.fogCoord = input.fogFactor;
-                inputData.vertexLighting = half3(0, 0, 0);
-                inputData.normalizedScreenSpaceUV = GetNormalizedScreenSpaceUV(input.positionCS);
-                inputData.shadowMask = half4(1, 1, 1, 1);
 
-                // Stable base brightness: flat ambient that only depends on power and the wall's
-                // world-space direction, never on where the camera or a moving light is.
-                half amb = lerp(_AmbientOff, _AmbientOn, p);
-                // A fixed fake light direction shades the bump normals the same way from every angle.
-                half3 keyL = normalize(-_KeyLightDir.xyz + 1e-5);
-                half key = saturate(dot(normalWS, keyL) * 0.75h + 0.25h);
-                half shade = lerp(0.8h + 0.2h * normalWS.y, key * 1.4h, _KeyLightStrength);
-                half3 ambient = amb * _AmbientTint.rgb * shade * surf.albedo * surf.occlusion;
+                result +=
+                    specular *
+                    mainLight.color;
 
-                inputData.bakedGI = half3(0, 0, 0);
-                half4 color = UniversalFragmentPBR(inputData, surf); // direct lights only
 
-                // Colour follows the lamp
-                // (red alarm pulses show up on the walls, white restore flicker too).
-                half3 spill = half3(0, 0, 0);
+                return result * ao;
+            }
+
+
+            // ============================================================
+            // ADDITIONAL LIGHTS
+            //
+            // This handles the lights created by your
+            // FacilityCeilingBuilder.
+            //
+            // IMPORTANT:
+            // Unity has already culled the lights affecting the object.
+            // We are NOT manually checking hundreds of lights.
+            // ============================================================
+
+            half3 ApplyAdditionalLights(
+                half3 albedo,
+                half3 normalWS,
+                half3 viewDirWS,
+                float3 positionWS,
+                half smoothness,
+                half ao
+            )
+            {
+                half3 result = 0;
+
+
                 #if defined(_ADDITIONAL_LIGHTS)
-                    uint pixelLightCount = GetAdditionalLightsCount();
-                    LIGHT_LOOP_BEGIN(pixelLightCount)
-                        Light al = GetAdditionalLight(lightIndex, input.positionWS, inputData.shadowMask);
-                        half wrap = saturate(dot(nWS, al.direction) * 0.5h + 0.5h);
-                        wrap *= wrap;
-                        spill += al.color * (al.distanceAttenuation * al.shadowAttenuation * wrap);
-                    LIGHT_LOOP_END
+
+                    uint lightCount =
+                        GetAdditionalLightsCount();
+
+
+                    for (
+                        uint i = 0u;
+                        i < lightCount;
+                        ++i
+                    )
+                    {
+                        Light light =
+                            GetAdditionalLight(
+                                i,
+                                positionWS
+                            );
+
+
+                        half NdotL =
+                            saturate(
+                                dot(
+                                    normalWS,
+                                    light.direction
+                                )
+                            );
+
+
+                        half3 diffuse =
+                            albedo *
+                            light.color *
+                            NdotL *
+                            light.distanceAttenuation *
+                            light.shadowAttenuation *
+                            _AdditionalLightGain;
+
+
+                        half3 halfDir =
+                            SafeNormalize(
+                                light.direction +
+                                viewDirWS
+                            );
+
+
+                        half NdotH =
+                            saturate(
+                                dot(
+                                    normalWS,
+                                    halfDir
+                                )
+                            );
+
+
+                        half specular =
+                            pow(
+                                NdotH,
+                                _SpecularPower
+                            ) *
+                            _SpecularStrength *
+                            smoothness;
+
+
+                        result +=
+                            diffuse;
+
+
+                        result +=
+                            specular *
+                            light.color;
+                    }
+
                 #endif
 
-                color.rgb = color.rgb * _LightGain
-                          + spill * surf.albedo * surf.occlusion * _LightWrap
-                          + ambient;
-                color.rgb = MixFog(color.rgb, inputData.fogCoord);
-                color.a = 1;
-                return color;
+
+                return result * ao;
             }
+
+
+            // ============================================================
+            // FRAGMENT SHADER
+            // ============================================================
+
+            half4 frag(Varyings IN) : SV_Target
+            {
+                // ========================================================
+                // NORMAL BASIS
+                // ========================================================
+
+                half3 baseNormalWS =
+                    normalize(
+                        IN.normalWS
+                    );
+
+
+                half3 tangentWS =
+                    normalize(
+                        IN.tangentWS.xyz
+                    );
+
+
+                half3 bitangentWS =
+                    normalize(
+                        cross(
+                            baseNormalWS,
+                            tangentWS
+                        )
+                        *
+                        IN.tangentWS.w
+                    );
+
+
+                half3x3 TBN =
+                    half3x3(
+                        tangentWS,
+                        bitangentWS,
+                        baseNormalWS
+                    );
+
+
+                // ========================================================
+                // UV
+                // ========================================================
+
+                float2 uv =
+                    IN.uv *
+                    _TextureTiling;
+
+
+                // ========================================================
+                // ALBEDO
+                // ========================================================
+
+                half3 albedo =
+                    SAMPLE_TEXTURE2D(
+                        _MainTex,
+                        sampler_MainTex,
+                        uv
+                    ).rgb;
+
+
+                albedo *=
+                    _Color.rgb;
+
+
+                // ========================================================
+                // NORMAL MAP
+                // ========================================================
+
+                half3 normalTS =
+                    UnpackNormal(
+                        SAMPLE_TEXTURE2D(
+                            _BumpMap,
+                            sampler_BumpMap,
+                            uv
+                        )
+                    );
+
+
+                normalTS.xy *=
+                    _NormalStrength;
+
+
+                half3 normalWS =
+                    normalize(
+                        mul(
+                            normalTS,
+                            TBN
+                        )
+                    );
+
+
+                // ========================================================
+                // ROUGHNESS
+                // ========================================================
+
+                half roughness =
+                    SAMPLE_TEXTURE2D(
+                        _RoughnessMap,
+                        sampler_RoughnessMap,
+                        uv
+                    ).r;
+
+
+                half smoothness =
+                    saturate(
+                        1.0h -
+                        roughness
+                    );
+
+
+                // ========================================================
+                // AO
+                // ========================================================
+
+                half aoTexture =
+                    SAMPLE_TEXTURE2D(
+                        _AOMap,
+                        sampler_AOMap,
+                        uv
+                    ).r;
+
+
+                half ao =
+                    lerp(
+                        1.0h,
+                        aoTexture,
+                        _AOStrength
+                    );
+
+
+                // ========================================================
+                // POWER
+                // ========================================================
+
+                half power =
+                    saturate(
+                        _WallPower
+                    );
+
+
+                // Smoothstep-style power response.
+                //
+                // This prevents the wall from simply popping
+                // from dark to bright.
+
+                half powerCurve =
+                    power *
+                    power *
+                    (
+                        3.0h -
+                        2.0h *
+                        power
+                    );
+
+
+                // ========================================================
+                // WALL BRIGHTNESS
+                // ========================================================
+
+                half brightness =
+                    lerp(
+                        _PowerOff,
+                        _PowerOn,
+                        powerCurve
+                    );
+
+
+                // ========================================================
+                // POWER TINT
+                //
+                // OFF:
+                //      subtle emergency atmosphere
+                //
+                // ON:
+                //      cold/neutral facility lighting
+                // ========================================================
+
+                half3 powerTint =
+                    lerp(
+                        _EmergencyTint.rgb,
+                        _PowerTint.rgb,
+                        powerCurve
+                    );
+
+
+                // ========================================================
+                // VIEW DIRECTION
+                // ========================================================
+
+                half3 viewDirWS =
+                    GetWorldSpaceNormalizeViewDir(
+                        IN.positionWS
+                    );
+
+
+                // ========================================================
+                // LIGHTING
+                // ========================================================
+
+                half3 lighting =
+                    0;
+
+
+                // Main directional light.
+
+                lighting +=
+                    ApplyMainLight(
+                        albedo,
+                        normalWS,
+                        viewDirWS,
+                        IN.positionWS,
+                        smoothness,
+                        ao
+                    );
+
+
+                // Ceiling point lights / spot lights.
+
+                lighting +=
+                    ApplyAdditionalLights(
+                        albedo,
+                        normalWS,
+                        viewDirWS,
+                        IN.positionWS,
+                        smoothness,
+                        ao
+                    );
+
+
+                // ========================================================
+                // AMBIENT / BAKED GI
+                // ========================================================
+
+                half3 ambient =
+                    SampleSH(
+                        normalWS
+                    ) *
+                    albedo *
+                    ao;
+
+
+                // ========================================================
+                // FINAL WALL COLOUR
+                // ========================================================
+
+                half3 color =
+                    (
+                        lighting +
+                        ambient
+                    )
+                    *
+                    brightness;
+
+
+                // ========================================================
+                // POWER TINT
+                // ========================================================
+
+                color *=
+                    powerTint;
+
+
+                // ========================================================
+                // EMERGENCY RED
+                //
+                // Very subtle because your actual ceiling lights
+                // already provide the strong red illumination.
+                // ========================================================
+
+                half emergency =
+                    (
+                        1.0h -
+                        powerCurve
+                    )
+                    *
+                    _EmergencyStrength;
+
+
+                color +=
+                    albedo *
+                    _EmergencyTint.rgb *
+                    emergency;
+
+
+                // ========================================================
+                // EXTRA DARKNESS WHILE UNPOWERED
+                // ========================================================
+
+                color *=
+                    1.0h -
+                    (
+                        _GrimeDarken *
+                        (
+                            1.0h -
+                            powerCurve
+                        )
+                    );
+
+
+                // ========================================================
+                // OUTPUT
+                // ========================================================
+
+                return half4(
+                    color,
+                    1
+                );
+            }
+
             ENDHLSL
         }
-
-        // Reuse URP Lit's utility passes so shadows, depth prepass and SSAO normals work.
-        UsePass "Universal Render Pipeline/Lit/SHADOWCASTER"
-        UsePass "Universal Render Pipeline/Lit/DEPTHONLY"
-        UsePass "Universal Render Pipeline/Lit/DEPTHNORMALS"
     }
+
+
+    // ================================================================
+    // FALLBACK
+    // ================================================================
+
+    FallBack
+        "Universal Render Pipeline/Lit"
 }

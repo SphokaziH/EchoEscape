@@ -146,7 +146,7 @@ public class FacilityCeilingBuilder : MonoBehaviour
         if (pipeMaterial == null)
         {
             Shader wetShader = Shader.Find("Horror/WetCeilingURP");
-            pipeMaterial = new Material(wetShader != null ? wetShader : lit);
+            pipeMaterial = new Material(lit);
             pipeMaterial.name = "CeilingPipe_Auto";
             pipeMaterial.SetColor("_BaseColor", new Color(0.42f, 0.43f, 0.41f));
             pipeMaterial.SetColor("_Color", new Color(0.42f, 0.43f, 0.41f));
@@ -247,6 +247,12 @@ public class FacilityCeilingBuilder : MonoBehaviour
         int drips = 0;
         if (buildSprinklers && sprinklerCount > 0)
             drips = BuildSprinklers(root.transform, center, size, floorY, ceilingY, fixturePos, rng, lit, pipeLines);
+
+#if UNITY_EDITOR
+        foreach (Transform t in root.GetComponentsInChildren<Transform>())
+            if (!t.name.StartsWith("Fixture") && !t.name.StartsWith("Drop"))
+                UnityEditor.GameObjectUtility.SetStaticEditorFlags(t.gameObject, UnityEditor.StaticEditorFlags.BatchingStatic);
+#endif
 
         Debug.Log("Ceiling built: " + count + " fixtures (" + reds + " red), " + lights + " real lights, " + drips + " sprinklers, " + pipes + " pipe runs.");
     }

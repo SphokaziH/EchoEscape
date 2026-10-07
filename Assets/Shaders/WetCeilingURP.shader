@@ -3,7 +3,9 @@ Shader "Horror/WetCeilingURP"
     // Grimy ceiling: water stains, rust at the stain edges, and a wet glossy halo
     // around every sprinkler (positions come from FacilityDrips.cs).
     //
-   
+    // CHANGES: _LightGain scales direct lamp light, and _Bounce adds a half-lambert "bounce"
+    // so the ceiling between fixtures is lit by the lamps instead of staying black
+    // (the lamps hang just below the slab, so plain N.L is almost zero away from them).
     Properties
     {
         _MainTex        ("Albedo (RGB)", 2D) = "white" {}
@@ -143,24 +145,45 @@ Shader "Horror/WetCeilingURP"
 
             half4 frag (Varyings IN) : SV_Target
             {
-                // Build our own tangent frame s
+                // STABLE world-space projection. The old version rebuilt the tangent frame from the
+                // per-pixel normal and then did dot(positionWS, T). On a curved pipe the normal
+                // rotates across the surface, and because positionWS can be tens of metres from
+                // the origin, that tiny rotation was multiplied into huge UV jumps = glitter.
+                // Here the projection axes are fixed world axes, picked by the dominant normal axis.
                 float3 N = normalize(IN.normalWS);
-                float3 up = abs(N.y) > 0.9 ? float3(0, 0, 1) : float3(0, 1, 0);
-                float3 T = normalize(cross(N, up));
+                float3 aN = abs(N);
+                float3 axT;
+                float3 axB;
+                float2 pw;
+                if (aN.y > 0.7)            // ceiling slab, top/bottom of pipes
+                {
+                    axT = float3(1, 0, 0); axB = float3(0, 0, 1);
+                    pw = IN.positionWS.xz;
+                }
+                else if (aN.x > aN.z)      // faces pointing along X (sides of Z-running pipes)
+                {
+                    axT = float3(0, 0, 1); axB = float3(0, 1, 0);
+                    pw = IN.positionWS.zy;
+                }
+                else                       // faces pointing along Z
+                {
+                    axT = float3(1, 0, 0); axB = float3(0, 1, 0);
+                    pw = IN.positionWS.xy;
+                }
+                float3 T = normalize(axT - N * dot(N, axT));
                 float3 B = cross(N, T);
                 float3x3 TBN = float3x3(T, B, N);
 
-                float2 pw = float2(dot(IN.positionWS, T), dot(IN.positionWS, B));
                 float2 uv = pw / _TileMeters;
 
-                //  Water stains with rusty edges 
+                // --- Water stains with rusty edges ---
                 float n1 = FBM(pw / _StainScale);
                 float n2 = FBM(pw * 2.3 + 17.0);
                 float stain = smoothstep(0.62 - _StainAmount * 0.25, 0.78 - _StainAmount * 0.25, n1);
                 float edge = stain * (1.0 - stain) * 4.0;
                 float rust = saturate(edge * smoothstep(0.35, 0.7, n2));
 
-                //  Wet halo around each sprinkler 
+                // --- Wet halo around each sprinkler ---
                 float halo = 0.0;
                 int dn = (int)_DripCount;
                 [loop] for (int i = 0; i < dn; i++)
@@ -170,14 +193,22 @@ Shader "Horror/WetCeilingURP"
                 }
                 float wetC = saturate(max(stain * 0.55, halo));
 
-                //  Normal 
+                // --- Normal ---
                 half3 nTS = UnpackNormal(SAMPLE_TEXTURE2D(_BumpMap, sampler_BumpMap, uv));
                 nTS.xy *= _NormalStrength;
-                nTS.xy += (VNoise(pw * 9.0 + _FacilityTime * 0.05) - 0.5) * 0.25 * wetC;   // slick, uneven wet surface
+                // slick, uneven wet surface: fine noise, so it fades out with distance (it aliases there)
+                float camD = distance(IN.positionWS, _WorldSpaceCameraPos);
+                float noiseFade = saturate(1.0 - camD / 12.0);
+                nTS.xy += (VNoise(pw * 6.0 + _FacilityTime * 0.05) - 0.5) * 0.15 * wetC * noiseFade;
                 nTS = normalize(nTS);
                 float3 normalWS = normalize(mul(nTS, TBN));
 
-                //  Albedo / smoothness / AO 
+                // How fast the normal changes between neighbouring pixels (used for specular AA below).
+                float3 dnx = ddx(normalWS);
+                float3 dny = ddy(normalWS);
+                float normalVariance = dot(dnx, dnx) + dot(dny, dny);
+
+                // --- Albedo / smoothness / AO ---
                 half3 albedo = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uv).rgb * _Color.rgb;
                 albedo *= lerp(1.0, 0.45, stain);
                 albedo = lerp(albedo, _RustColor.rgb, saturate(rust * 0.7));
@@ -185,6 +216,14 @@ Shader "Horror/WetCeilingURP"
 
                 half rough = SAMPLE_TEXTURE2D(_RoughnessMap, sampler_RoughnessMap, uv).r;
                 half smoothness = lerp(_DrySmoothness * (1.0 - rough), _WetSmoothness, wetC);
+
+                // Specular anti-aliasing: widen highlights where the normal changes quickly
+                // between pixels (thin curved pipes, distance). Removes the sparkle.
+                {
+                    float r2 = (1.0 - smoothness) * (1.0 - smoothness);
+                    r2 += min(0.5 * normalVariance * 1.5, 0.25);
+                    smoothness = (half)(1.0 - sqrt(saturate(r2)));
+                }
                 half ao = lerp(1.0, SAMPLE_TEXTURE2D(_AOMap, sampler_AOMap, uv).r, _AOStrength);
 
                 SurfaceData s = (SurfaceData)0;
@@ -213,7 +252,8 @@ Shader "Horror/WetCeilingURP"
                 half4 color = UniversalFragmentPBR(inputData, s);
                 color.rgb *= _LightGain;
 
-                // Bounce
+                // Bounce: half-lambert from every lamp, so the slab between and around the
+                // fixtures picks up their colour (red alarm wash, white restore flicker).
                 half3 bounce = half3(0, 0, 0);
                 #if defined(_ADDITIONAL_LIGHTS)
                     uint pixelLightCount = GetAdditionalLightsCount();
