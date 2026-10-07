@@ -13,12 +13,31 @@ public class Wire : MonoBehaviour
 
     void Start()
     {
-        startPoint = transform.parent.position;
+        // Save the original position of the draggable wire end
         startPosition = transform.position;
+
+        // Use the existing wire_start object
+        Transform wireStart = transform.parent.Find("wire_start");
+
+        if (wireStart != null)
+        {
+            startPoint = wireStart.position;
+        }
+        else
+        {
+            // Fallback to original behaviour
+            startPoint = transform.parent.position;
+
+            Debug.LogWarning(
+                "wire_start not found for " + gameObject.name
+            );
+        }
 
         if (wireLine != null)
         {
             wireLine.positionCount = 2;
+            wireLine.useWorldSpace = true;
+
             wireLine.SetPosition(0, startPoint);
             wireLine.SetPosition(1, startPosition);
         }
@@ -26,34 +45,55 @@ public class Wire : MonoBehaviour
 
     private void OnMouseDrag()
     {
-        Debug.Log("Dragging wire: " + gameObject.name);
+        if (Camera.main == null)
+            return;
 
-        Vector2 mousePosition = Mouse.current.position.ReadValue();
+        Vector2 mousePosition =
+            Mouse.current.position.ReadValue();
 
-        Ray ray = Camera.main.ScreenPointToRay(mousePosition);
+        Ray ray =
+            Camera.main.ScreenPointToRay(mousePosition);
 
-        Plane wirePlane = new Plane(Vector3.forward, startPoint);
+        // Keep the wire moving on the puzzle plane
+        Plane wirePlane =
+            new Plane(Vector3.forward, startPoint);
 
         float distance;
 
         if (wirePlane.Raycast(ray, out distance))
         {
-            Vector3 newPosition = ray.GetPoint(distance);
+            Vector3 newPosition =
+                ray.GetPoint(distance);
 
-            Collider[] colliders = Physics.OverlapSphere(
-                newPosition,
-                wireRadius
-            );
+            Collider[] colliders =
+                Physics.OverlapSphere(
+                    newPosition,
+                    wireRadius
+                );
 
             foreach (Collider collider in colliders)
             {
                 if (collider.gameObject != gameObject)
                 {
-                    UpdateWire(collider.transform.position);
+                    if (collider.transform.parent == null)
+                        continue;
 
-                    if (transform.parent.name == collider.transform.parent.name)
+                    // Check for the matching wire
+                    if (transform.parent.name ==
+                        collider.transform.parent.name)
                     {
-                        Main.Instance.LightChange(1);
+                        Vector3 connectionPosition =
+                            collider.transform.position;
+
+                        // Keep the completed wire flat
+                        // instead of moving toward the camera
+                        connectionPosition.z =
+                            startPosition.z;
+
+                        UpdateWire(connectionPosition);
+
+                        if (Main.Instance != null)
+                            Main.Instance.LightChange(1);
 
                         Wire otherWire =
                             collider.GetComponent<Wire>();
@@ -67,6 +107,7 @@ public class Wire : MonoBehaviour
                 }
             }
 
+            // Follow the mouse while dragging
             UpdateWire(newPosition);
         }
     }
@@ -78,8 +119,10 @@ public class Wire : MonoBehaviour
 
     void UpdateWire(Vector3 newPosition)
     {
+        // Move the Moving object
         transform.position = newPosition;
 
+        // Stretch the actual wire
         if (wireLine != null)
         {
             wireLine.SetPosition(0, startPoint);
@@ -89,7 +132,9 @@ public class Wire : MonoBehaviour
 
     void Done()
     {
-        lightOn.SetActive(true);
+        if (lightOn != null)
+            lightOn.SetActive(true);
+
         Destroy(this);
     }
 }
