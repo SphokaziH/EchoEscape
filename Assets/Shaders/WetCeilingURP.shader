@@ -1,9 +1,6 @@
 Shader "Horror/WetCeilingURP"
 {
-    // Grimy ceiling: water stains, rust at the stain edges, and a wet glossy halo
-    // around every sprinkler (positions come from FacilityDrips.cs).
-    //
-   
+ 
     Properties
     {
         _MainTex        ("Albedo (RGB)", 2D) = "white" {}
@@ -143,14 +140,31 @@ Shader "Horror/WetCeilingURP"
 
             half4 frag (Varyings IN) : SV_Target
             {
-                // Build our own tangent frame s
+              
                 float3 N = normalize(IN.normalWS);
-                float3 up = abs(N.y) > 0.9 ? float3(0, 0, 1) : float3(0, 1, 0);
-                float3 T = normalize(cross(N, up));
+                float3 aN = abs(N);
+                float3 axT;
+                float3 axB;
+                float2 pw;
+                if (aN.y > 0.7)            // ceiling slab, top/bottom of pipes
+                {
+                    axT = float3(1, 0, 0); axB = float3(0, 0, 1);
+                    pw = IN.positionWS.xz;
+                }
+                else if (aN.x > aN.z)      // faces pointing along X (sides of Z-running pipes)
+                {
+                    axT = float3(0, 0, 1); axB = float3(0, 1, 0);
+                    pw = IN.positionWS.zy;
+                }
+                else                       // faces pointing along Z
+                {
+                    axT = float3(1, 0, 0); axB = float3(0, 1, 0);
+                    pw = IN.positionWS.xy;
+                }
+                float3 T = normalize(axT - N * dot(N, axT));
                 float3 B = cross(N, T);
                 float3x3 TBN = float3x3(T, B, N);
 
-                float2 pw = float2(dot(IN.positionWS, T), dot(IN.positionWS, B));
                 float2 uv = pw / _TileMeters;
 
                 //  Water stains with rusty edges 
@@ -173,11 +187,19 @@ Shader "Horror/WetCeilingURP"
                 //  Normal 
                 half3 nTS = UnpackNormal(SAMPLE_TEXTURE2D(_BumpMap, sampler_BumpMap, uv));
                 nTS.xy *= _NormalStrength;
-                nTS.xy += (VNoise(pw * 9.0 + _FacilityTime * 0.05) - 0.5) * 0.25 * wetC;   // slick, uneven wet surface
+                // slick, uneven wet surface
+                float camD = distance(IN.positionWS, _WorldSpaceCameraPos);
+                float noiseFade = saturate(1.0 - camD / 12.0);
+                nTS.xy += (VNoise(pw * 6.0 + _FacilityTime * 0.05) - 0.5) * 0.15 * wetC * noiseFade;
                 nTS = normalize(nTS);
                 float3 normalWS = normalize(mul(nTS, TBN));
 
-                //  Albedo / smoothness / AO 
+                // How fast the normal changes 
+                float3 dnx = ddx(normalWS);
+                float3 dny = ddy(normalWS);
+                float normalVariance = dot(dnx, dnx) + dot(dny, dny);
+
+                //  Albedo / smoothness
                 half3 albedo = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uv).rgb * _Color.rgb;
                 albedo *= lerp(1.0, 0.45, stain);
                 albedo = lerp(albedo, _RustColor.rgb, saturate(rust * 0.7));
@@ -185,6 +207,13 @@ Shader "Horror/WetCeilingURP"
 
                 half rough = SAMPLE_TEXTURE2D(_RoughnessMap, sampler_RoughnessMap, uv).r;
                 half smoothness = lerp(_DrySmoothness * (1.0 - rough), _WetSmoothness, wetC);
+
+             
+                {
+                    float r2 = (1.0 - smoothness) * (1.0 - smoothness);
+                    r2 += min(0.5 * normalVariance * 1.5, 0.25);
+                    smoothness = (half)(1.0 - sqrt(saturate(r2)));
+                }
                 half ao = lerp(1.0, SAMPLE_TEXTURE2D(_AOMap, sampler_AOMap, uv).r, _AOStrength);
 
                 SurfaceData s = (SurfaceData)0;
@@ -213,7 +242,8 @@ Shader "Horror/WetCeilingURP"
                 half4 color = UniversalFragmentPBR(inputData, s);
                 color.rgb *= _LightGain;
 
-                // Bounce
+            
+                // fixtures picks up their colour (red alarm wash, white restore flicker).
                 half3 bounce = half3(0, 0, 0);
                 #if defined(_ADDITIONAL_LIGHTS)
                     uint pixelLightCount = GetAdditionalLightsCount();

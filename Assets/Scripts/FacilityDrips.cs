@@ -1,37 +1,65 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-
 public class FacilityDrips : MonoBehaviour
 {
     [System.Serializable]
     public class Drip
     {
         public Transform drop;
-        public Vector3 head;     // where the drop forms 
+        public Vector3 head;     // where the drop forms
         public float floorY;
         public float fall;       // seconds to fall
         public float period;
         public float phase;
+
+        [System.NonSerialized] public bool hidden;   // drop already scaled to zero
     }
 
-    public const float RippleLife = 1.8f;   //  match the floor 
+    public const float RippleLife = 1.8f;   // match the floor shader
+    const int MaxShaderDrips = 16;          // must match _DripData[16] in the shader
+
+    [Tooltip("Drips further than this from the camera are not simulated or sent to the shader. " +
+             "Set it a bit beyond your longest sightline so puddles don't pop in.")]
+    public float activeRange = 30f;
+
     public List<Drip> drips = new List<Drip>();
 
     static readonly int DripDataId = Shader.PropertyToID("_DripData");
     static readonly int DripCountId = Shader.PropertyToID("_DripCount");
     static readonly int TimeId = Shader.PropertyToID("_FacilityTime");
-    readonly Vector4[] data = new Vector4[16];
+
+    readonly Vector4[] data = new Vector4[MaxShaderDrips];
+    Transform cam;
 
     void Update()
     {
-        float t = Time.time;
-        int n = Mathf.Min(drips.Count, 16);
+        if (cam == null)
+        {
+            Camera c = Camera.main;
+            if (c != null) cam = c.transform;
+        }
 
-        for (int i = 0; i < n; i++)
+        bool useRange = cam != null;
+        Vector3 camPos = useRange ? cam.position : Vector3.zero;
+        float rangeSqr = activeRange * activeRange;
+
+        float t = Time.time;
+        int n = 0;
+
+        for (int i = 0; i < drips.Count; i++)
         {
             Drip d = drips[i];
-            data[i] = new Vector4(d.head.x, d.head.z, d.period, d.phase);
+
+            // Too far away, or the shader array is full: hide and skip.
+            if (n >= MaxShaderDrips ||
+                (useRange && (d.head - camPos).sqrMagnitude > rangeSqr))
+            {
+                Hide(d);
+                continue;
+            }
+
+            data[n++] = new Vector4(d.head.x, d.head.z, d.period, d.phase);
             if (d.drop == null) continue;
 
             float a = (t + d.phase) % d.period;
@@ -44,6 +72,7 @@ public class FacilityDrips : MonoBehaviour
                 float size = Mathf.Lerp(0.004f, 0.03f, s * s);
                 d.drop.position = d.head + Vector3.down * (size * 0.5f);
                 d.drop.localScale = new Vector3(size, size * 1.3f, size);
+                d.hidden = false;
             }
             else if (a < landAt)
             {
@@ -52,16 +81,25 @@ public class FacilityDrips : MonoBehaviour
                 float vel = 9.81f * s;
                 d.drop.position = new Vector3(d.head.x, y, d.head.z);
                 d.drop.localScale = new Vector3(0.022f, 0.035f + vel * 0.01f, 0.022f);
+                d.hidden = false;
             }
             else
             {
-                d.drop.localScale = Vector3.zero;
+                Hide(d);   // ripple phase: no visible drop
             }
         }
 
         Shader.SetGlobalVectorArray(DripDataId, data);
         Shader.SetGlobalFloat(DripCountId, n);
         Shader.SetGlobalFloat(TimeId, t);
+    }
+
+    // Scales the drop to zero once instead of rewriting the transform every frame.
+    static void Hide(Drip d)
+    {
+        if (d.drop == null || d.hidden) return;
+        d.drop.localScale = Vector3.zero;
+        d.hidden = true;
     }
 
     void OnDisable()

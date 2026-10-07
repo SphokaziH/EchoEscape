@@ -1,9 +1,8 @@
 using UnityEngine;
 
-
 public class CeilingLightPulse : MonoBehaviour
 {
-    public Light lamp;            
+    public Light lamp;
     public Renderer fixture;
     public bool isRed = true;
     public Color color = Color.red;
@@ -24,9 +23,22 @@ public class CeilingLightPulse : MonoBehaviour
     public float restoreDelay;
     public float flickerTime = 0.8f;
 
+    [Header("Optimisation")]
+    [Tooltip("Real lights beyond this distance from the camera are turned off.")]
+    public float lampCullDistance = 22f;
+    [Tooltip("Fixture glow beyond this distance is not updated.")]
+    public float visualCullDistance = 60f;
+
     static readonly int EmissionId = Shader.PropertyToID("_EmissionColor");
     static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
+
+    // one camera lookup per frame shared by every fixture
+    static int camFrame = -1;
+    static Vector3 camPos;
+    static bool haveCam;
+
     MaterialPropertyBlock block;
+    Color lastGlow = new Color(-1, -1, -1, -1);
     float nextGlitch;
     float glitchEnd;
 
@@ -35,10 +47,32 @@ public class CeilingLightPulse : MonoBehaviour
         block = new MaterialPropertyBlock();
         nextGlitch = Time.time + Random.Range(0f, 15f);
         glitchEnd = 0f;
+        lastGlow = new Color(-1, -1, -1, -1);
+    }
+
+    static void RefreshCamera()
+    {
+        if (camFrame == Time.frameCount) return;
+        camFrame = Time.frameCount;
+        Camera c = Camera.main;
+        haveCam = c != null;
+        if (haveCam) camPos = c.transform.position;
     }
 
     void Update()
     {
+        RefreshCamera();
+
+        if (haveCam)
+        {
+            float sqr = (transform.position - camPos).sqrMagnitude;
+
+            bool lampNear = sqr < lampCullDistance * lampCullDistance;
+            if (lamp != null && lamp.enabled != lampNear) lamp.enabled = lampNear;
+
+            if (sqr > visualCullDistance * visualCullDistance) return;   
+        }
+
         Color c = color;
         float inten = maxIntensity;
         float boost = emissionBoost;
@@ -78,7 +112,7 @@ public class CeilingLightPulse : MonoBehaviour
                 k = Random.value > 0.5f ? 0.02f : dimLevel;
         }
 
-        if (lamp != null)
+        if (lamp != null && lamp.enabled)
         {
             lamp.color = c;
             lamp.range = rng;
@@ -88,9 +122,14 @@ public class CeilingLightPulse : MonoBehaviour
         if (fixture != null)
         {
             Color glow = c * boost * k;
-            block.SetColor(BaseColorId, glow);
-            block.SetColor(EmissionId, glow);
-            fixture.SetPropertyBlock(block);
+
+            if (Mathf.Abs(glow.r - lastGlow.r) + Mathf.Abs(glow.g - lastGlow.g) + Mathf.Abs(glow.b - lastGlow.b) > 0.01f)
+            {
+                lastGlow = glow;
+                block.SetColor(BaseColorId, glow);
+                block.SetColor(EmissionId, glow);
+                fixture.SetPropertyBlock(block);
+            }
         }
     }
 }
