@@ -2,6 +2,8 @@ Shader "Horror/WetCeilingURP"
 {
     // Grimy ceiling: water stains, rust at the stain edges, and a wet glossy halo
     // around every sprinkler (positions come from FacilityDrips.cs).
+    //
+   
     Properties
     {
         _MainTex        ("Albedo (RGB)", 2D) = "white" {}
@@ -21,6 +23,10 @@ Shader "Horror/WetCeilingURP"
         _DripHaloRadius ("Wet halo around sprinklers (meters)", Float) = 1.3
         _DrySmoothness  ("Dry Smoothness (x inverse roughness)", Range(0,1)) = 1
         _WetSmoothness  ("Wet Smoothness", Range(0,1)) = 0.9
+
+        [Header(Lamp light on the ceiling)]
+        _LightGain      ("Direct light gain", Range(0,8)) = 2
+        _Bounce         ("Light bounce / spill", Range(0,6)) = 1.5
     }
 
     SubShader
@@ -69,6 +75,8 @@ Shader "Horror/WetCeilingURP"
                 float _DripHaloRadius;
                 float _DrySmoothness;
                 float _WetSmoothness;
+                float _LightGain;
+                float _Bounce;
             CBUFFER_END
 
             // Set every frame by FacilityDrips.cs
@@ -135,7 +143,7 @@ Shader "Horror/WetCeilingURP"
 
             half4 frag (Varyings IN) : SV_Target
             {
-                // Build our own tangent frame so world-space UVs work on any slab orientation.
+                // Build our own tangent frame s
                 float3 N = normalize(IN.normalWS);
                 float3 up = abs(N.y) > 0.9 ? float3(0, 0, 1) : float3(0, 1, 0);
                 float3 T = normalize(cross(N, up));
@@ -145,14 +153,14 @@ Shader "Horror/WetCeilingURP"
                 float2 pw = float2(dot(IN.positionWS, T), dot(IN.positionWS, B));
                 float2 uv = pw / _TileMeters;
 
-                // --- Water stains with rusty edges ---
+                //  Water stains with rusty edges 
                 float n1 = FBM(pw / _StainScale);
                 float n2 = FBM(pw * 2.3 + 17.0);
                 float stain = smoothstep(0.62 - _StainAmount * 0.25, 0.78 - _StainAmount * 0.25, n1);
                 float edge = stain * (1.0 - stain) * 4.0;
                 float rust = saturate(edge * smoothstep(0.35, 0.7, n2));
 
-                // --- Wet halo around each sprinkler ---
+                //  Wet halo around each sprinkler 
                 float halo = 0.0;
                 int dn = (int)_DripCount;
                 [loop] for (int i = 0; i < dn; i++)
@@ -162,14 +170,14 @@ Shader "Horror/WetCeilingURP"
                 }
                 float wetC = saturate(max(stain * 0.55, halo));
 
-                // --- Normal ---
+                //  Normal 
                 half3 nTS = UnpackNormal(SAMPLE_TEXTURE2D(_BumpMap, sampler_BumpMap, uv));
                 nTS.xy *= _NormalStrength;
                 nTS.xy += (VNoise(pw * 9.0 + _FacilityTime * 0.05) - 0.5) * 0.25 * wetC;   // slick, uneven wet surface
                 nTS = normalize(nTS);
                 float3 normalWS = normalize(mul(nTS, TBN));
 
-                // --- Albedo / smoothness / AO ---
+                //  Albedo / smoothness / AO 
                 half3 albedo = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uv).rgb * _Color.rgb;
                 albedo *= lerp(1.0, 0.45, stain);
                 albedo = lerp(albedo, _RustColor.rgb, saturate(rust * 0.7));
@@ -190,19 +198,34 @@ Shader "Horror/WetCeilingURP"
                 s.alpha = 1;
                 s.normalTS = half3(0, 0, 1);
 
-                InputData d = (InputData)0;
-                d.positionWS = IN.positionWS;
-                d.positionCS = IN.positionHCS;
-                d.normalWS = normalWS;
-                d.viewDirectionWS = GetWorldSpaceNormalizeViewDir(IN.positionWS);
-                d.shadowCoord = TransformWorldToShadowCoord(IN.positionWS);
-                d.fogCoord = IN.fogFactor;
-                d.vertexLighting = half3(0, 0, 0);
-                d.bakedGI = SampleSH(normalWS);
-                d.normalizedScreenSpaceUV = GetNormalizedScreenSpaceUV(IN.positionHCS);
-                d.shadowMask = half4(1, 1, 1, 1);
+                InputData inputData = (InputData)0;
+                inputData.positionWS = IN.positionWS;
+                inputData.positionCS = IN.positionHCS;
+                inputData.normalWS = normalWS;
+                inputData.viewDirectionWS = GetWorldSpaceNormalizeViewDir(IN.positionWS);
+                inputData.shadowCoord = TransformWorldToShadowCoord(IN.positionWS);
+                inputData.fogCoord = IN.fogFactor;
+                inputData.vertexLighting = half3(0, 0, 0);
+                inputData.bakedGI = SampleSH(normalWS);
+                inputData.normalizedScreenSpaceUV = GetNormalizedScreenSpaceUV(IN.positionHCS);
+                inputData.shadowMask = half4(1, 1, 1, 1);
 
-                half4 color = UniversalFragmentPBR(d, s);
+                half4 color = UniversalFragmentPBR(inputData, s);
+                color.rgb *= _LightGain;
+
+                // Bounce
+                half3 bounce = half3(0, 0, 0);
+                #if defined(_ADDITIONAL_LIGHTS)
+                    uint pixelLightCount = GetAdditionalLightsCount();
+                    LIGHT_LOOP_BEGIN(pixelLightCount)
+                        Light al = GetAdditionalLight(lightIndex, IN.positionWS, inputData.shadowMask);
+                        half wrap = saturate(dot(N, al.direction) * 0.5h + 0.5h);
+                        wrap *= wrap;
+                        bounce += al.color * (al.distanceAttenuation * al.shadowAttenuation * wrap);
+                    LIGHT_LOOP_END
+                #endif
+                color.rgb += bounce * albedo * ao * _Bounce;
+
                 color.rgb = MixFog(color.rgb, IN.fogFactor);
                 return half4(color.rgb, 1);
             }
