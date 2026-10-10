@@ -7,6 +7,8 @@ public class WirePuzzleInteraction : Interactable
     public MouseLook mouseLook;
 
     private bool puzzleActive = false;
+    private bool puzzleCompleted = false;
+
     private Collider puzzleCollider;
 
     void Start()
@@ -19,7 +21,7 @@ public class WirePuzzleInteraction : Interactable
         if (GameManager.instance == null)
             return "";
 
-        if (GameManager.instance.generatorActivated)
+        if (puzzleCompleted || GameManager.instance.generatorActivated)
             return "";
 
         if (GameManager.instance.powerNodesInstalled <
@@ -36,7 +38,7 @@ public class WirePuzzleInteraction : Interactable
         if (GameManager.instance == null)
             return;
 
-        if (GameManager.instance.generatorActivated)
+        if (puzzleCompleted || GameManager.instance.generatorActivated)
             return;
 
         if (GameManager.instance.powerNodesInstalled <
@@ -59,8 +61,6 @@ public class WirePuzzleInteraction : Interactable
         if (mouseLook != null)
             mouseLook.enabled = false;
 
-        // Disable the large puzzle collider so it does not
-        // block the individual wire colliders.
         if (puzzleCollider != null)
             puzzleCollider.enabled = false;
 
@@ -72,6 +72,11 @@ public class WirePuzzleInteraction : Interactable
 
     public void PuzzleComplete()
     {
+        if (puzzleCompleted)
+            return;
+
+        puzzleCompleted = true;
+
         Debug.Log("Wire puzzle complete!");
 
         if (GameManager.instance != null)
@@ -92,11 +97,12 @@ public class WirePuzzleInteraction : Interactable
         if (mouseLook != null)
             mouseLook.enabled = true;
 
-        // Turn the main puzzle collider back on.
         if (puzzleCollider != null)
             puzzleCollider.enabled = true;
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+
+        Debug.Log("Returned to normal gameplay.");
     }
 }

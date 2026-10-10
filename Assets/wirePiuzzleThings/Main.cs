@@ -2,7 +2,9 @@ using UnityEngine;
 
 public class Main : MonoBehaviour
 {
-    public int lightCount;
+    public int lightCount = 4;
+
+    public WirePuzzleInteraction wirePuzzleInteraction;
 
     private int onCount = 0;
 
@@ -40,8 +42,6 @@ public class Main : MonoBehaviour
         if (puzzleCompleted)
             return;
 
-        puzzleCompleted = true;
-
         if (GameManager.instance == null)
         {
             Debug.LogError("GameManager could not be found.");
@@ -58,7 +58,16 @@ public class Main : MonoBehaviour
             return;
         }
 
-        GameManager.instance.ActivateGenerator();
+        puzzleCompleted = true;
+
+        if (wirePuzzleInteraction != null)
+        {
+            wirePuzzleInteraction.PuzzleComplete();
+        }
+        else
+        {
+            Debug.LogError("WirePuzzleInteraction is not assigned.");
+        }
 
         Debug.Log(
             "Generator circuit repaired. Facility power restored."

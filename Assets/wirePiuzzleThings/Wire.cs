@@ -11,13 +11,13 @@ public class Wire : MonoBehaviour
 
     public float wireRadius = 0.2f;
 
+    private bool connected = false;
+
     void Start()
     {
-        // Save the original position of the draggable wire end
         startPosition = transform.position;
 
-        // Use the existing wire_start object
-        Transform wireStart = transform.parent.Find("wire_start");
+        Transform wireStart = transform.parent.Find("Wire_start");
 
         if (wireStart != null)
         {
@@ -25,11 +25,10 @@ public class Wire : MonoBehaviour
         }
         else
         {
-            // Fallback to original behaviour
             startPoint = transform.parent.position;
 
             Debug.LogWarning(
-                "wire_start not found for " + gameObject.name
+                "Wire_start not found for " + gameObject.name
             );
         }
 
@@ -45,7 +44,7 @@ public class Wire : MonoBehaviour
 
     private void OnMouseDrag()
     {
-        if (Camera.main == null)
+        if (connected || Camera.main == null || Mouse.current == null)
             return;
 
         Vector2 mousePosition =
@@ -54,7 +53,6 @@ public class Wire : MonoBehaviour
         Ray ray =
             Camera.main.ScreenPointToRay(mousePosition);
 
-        // Keep the wire moving on the puzzle plane
         Plane wirePlane =
             new Plane(Vector3.forward, startPoint);
 
@@ -62,79 +60,77 @@ public class Wire : MonoBehaviour
 
         if (wirePlane.Raycast(ray, out distance))
         {
-            Vector3 newPosition =
-                ray.GetPoint(distance);
+            Vector3 newPosition = ray.GetPoint(distance);
 
             Collider[] colliders =
-                Physics.OverlapSphere(
-                    newPosition,
-                    wireRadius
-                );
+                Physics.OverlapSphere(newPosition, wireRadius);
 
             foreach (Collider collider in colliders)
             {
-                if (collider.gameObject != gameObject)
+                if (collider.gameObject == gameObject)
+                    continue;
+
+                if (collider.transform.parent == null)
+                    continue;
+
+                if (transform.parent.name ==
+                    collider.transform.parent.name)
                 {
-                    if (collider.transform.parent == null)
+                    Wire otherWire =
+                        collider.GetComponent<Wire>();
+
+                    if (otherWire == null || otherWire == this || otherWire.connected)
                         continue;
 
-                    // Check for the matching wire
-                    if (transform.parent.name ==
-                        collider.transform.parent.name)
-                    {
-                        Vector3 connectionPosition =
-                            collider.transform.position;
+                    Vector3 connectionPosition =
+                        collider.transform.position;
 
-                        // Keep the completed wire flat
-                        // instead of moving toward the camera
-                        connectionPosition.z =
-                            startPosition.z;
+                    connectionPosition.z = startPosition.z;
 
-                        UpdateWire(connectionPosition);
+                    UpdateWire(connectionPosition);
 
-                        if (Main.Instance != null)
-                            Main.Instance.LightChange(1);
+                    connected = true;
 
-                        Wire otherWire =
-                            collider.GetComponent<Wire>();
+                    otherWire.Done();
+                    Done();
 
-                        if (otherWire != null)
-                            otherWire.Done();
+                    if (Main.Instance != null)
+                        Main.Instance.LightChange(1);
 
-                        Done();
-                        return;
-                    }
+                    return;
                 }
             }
 
-            // Follow the mouse while dragging
             UpdateWire(newPosition);
         }
     }
 
     private void OnMouseUp()
     {
-        UpdateWire(startPosition);
+        if (!connected)
+            UpdateWire(startPosition);
     }
 
     void UpdateWire(Vector3 newPosition)
     {
-        // Move the Moving object
         transform.position = newPosition;
 
-        // Stretch the actual wire
         if (wireLine != null)
         {
             wireLine.SetPosition(0, startPoint);
             wireLine.SetPosition(1, newPosition);
         }
     }
+    
 
     void Done()
     {
+        connected = true;
+
         if (lightOn != null)
             lightOn.SetActive(true);
 
-        Destroy(this);
+        if (wireLine != null)
+            wireLine.enabled = true;
     }
 }
