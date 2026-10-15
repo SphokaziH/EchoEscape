@@ -1,12 +1,6 @@
 Shader "Horror/WetFacilityFloorURP"
 {
-    // World-space UVs: texture sizes are in METERS, so plane scale no longer matters.
-    // Uses URP's PBR lighting: point/spot lights, reflection probes, shadows, fog, SSAO all work.
-    //
-    // NEW: wet areas mirror the ceiling lights. For every lamp the shader reflects the view ray
-    // off the (rippled) puddle normal, intersects it with the fixture plane and draws the
-    // fixture rectangle (plus a soft light pool on the ceiling) in the lamp's current colour.
-    // Red alarm pulses, dim pre-power glow and the restore flicker all show up in the puddles.
+  
     Properties
     {
         _MainTex        ("Albedo (RGB)", 2D) = "white" {}
@@ -38,6 +32,11 @@ Shader "Horror/WetFacilityFloorURP"
         _EmissionColor  ("Emergency Emission Color", Color) = (0.9, 0.05, 0.05, 1)
         _PulseSpeed     ("Emission Pulse Speed", Float) = 1.2
         _PulseMin       ("Emission Pulse Min", Range(0,1)) = 0.1
+
+        [Header(Power)]
+        _PowerLightInfluence ("Power Base Light", Range(0,2)) = 1.0
+        _PowerTint           ("Power Tint", Color) = (0.82, 0.86, 0.80, 1)
+        _UnpoweredBrightness ("Unpowered Brightness (1 = unchanged)", Range(0,1)) = 1.0
 
         [Header(Lamp light on the floor)]
         _LightGain      ("Direct light gain", Range(0,6)) = 1.5
@@ -94,6 +93,7 @@ Shader "Horror/WetFacilityFloorURP"
                 float4 _Color;
                 float4 _EmissionColor;
                 float4 _FixtureHalfSize;
+                float4 _PowerTint;
                 float _TileMeters;
                 float _NormalStrength;
                 float _AOStrength;
@@ -111,6 +111,8 @@ Shader "Horror/WetFacilityFloorURP"
                 float _DripRippleStrength;
                 float _PulseSpeed;
                 float _PulseMin;
+                float _PowerLightInfluence;
+                float _UnpoweredBrightness;
                 float _LightGain;
                 float _CeilingY;
                 float _LampDrop;
@@ -125,6 +127,10 @@ Shader "Horror/WetFacilityFloorURP"
             float4 _DripData[16];   // xy = world xz, z = period, w = phase
             float _DripCount;
             float _FacilityTime;
+
+           
+            // 0 = power off, 1 = fully restored.
+            float _WallPower;
 
             struct Attributes
             {
@@ -195,11 +201,15 @@ Shader "Horror/WetFacilityFloorURP"
 
                 float2 worldUV = IN.positionWS.xz;
 
-                // --- Puddles (crisp edges) ---
+                //  Power 
+                half power = saturate(_WallPower);
+                half powerCurve = power * power * (3.0h - 2.0h * power);
+
+                //  Puddles (crisp edges) 
                 half mask = SAMPLE_TEXTURE2D(_WetnessMask, sampler_WetnessMask, worldUV / _PuddleMeters).r;
                 half wet = smoothstep(0.45, 0.55, mask + (_WetnessAmount - 0.5));
 
-                // --- A permanent puddle under every ceiling drip ---
+                //  A permanent puddle under every ceiling drip 
                 int dripN = (int)_DripCount;
                 [loop] for (int di = 0; di < dripN; di++)
                 {
@@ -208,18 +218,16 @@ Shader "Horror/WetFacilityFloorURP"
                     wet = max(wet, (half)puddle);
                 }
 
-                // --- Parallax (flattened inside puddles) ---
+                //  Parallax (flattened inside puddles) 
                 float2 uv = worldUV / _TileMeters;
                 half height = SAMPLE_TEXTURE2D(_HeightMap, sampler_HeightMap, uv).r;
                 uv += (height - 0.5) * _ParallaxScale * (1.0 - wet) * (viewTS.xy / (viewTS.z + 0.42));
 
-                // --- Normal: concrete detail + ripples inside puddles ---
+                //  Normal
                 half3 nTS = UnpackNormal(SAMPLE_TEXTURE2D(_BumpMap, sampler_BumpMap, uv));
                 nTS.xy *= _NormalStrength;
 
                 float camDist = distance(IN.positionWS, _WorldSpaceCameraPos);
-                // Ripples fade by half the range, squared, so far-away ripples (the main
-                // source of shimmering/sparkle) disappear well before they alias.
                 float fade = saturate(1.0 - camDist / min(_RippleFade, _ReflFadeDist * 0.5));
                 fade *= fade;
 
@@ -229,7 +237,7 @@ Shader "Horror/WetFacilityFloorURP"
                     float2 g = RippleGradient(worldUV / _RippleCellMeters, _Time.y * _RippleRate);
                     nTS.xy += (-g * _RippleStrength * fade * wet);
 
-                    // --- Rings from each drip landing (timing matches the falling drop) ---
+                    //  Rings from each drip landing (timing matches the falling drop) 
                     [loop] for (int dj = 0; dj < dripN; dj++)
                     {
                         float4 dv4 = _DripData[dj];
@@ -252,21 +260,20 @@ Shader "Horror/WetFacilityFloorURP"
 
                 float3 normalWS = normalize(mul(nTS, TBN));
 
-                // How fast the normal changes between neighbouring pixels. Where it changes fast
-                // (tiny ripples, distance) the highlight would flicker, so we blur it below.
+                // (tiny ripples, distance) 
                 float3 dnx = ddx(normalWS);
                 float3 dny = ddy(normalWS);
                 float normalVariance = dot(dnx, dnx) + dot(dny, dny);
 
-                // --- Surface ---
+                //  Surface 
                 half3 albedo = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uv).rgb * _Color.rgb;
                 albedo *= lerp(1.0, 1.0 - _WetDarken, wet);
 
                 half rough = SAMPLE_TEXTURE2D(_RoughnessMap, sampler_RoughnessMap, uv).r;
                 half smoothness = lerp(_Smoothness * (1.0 - rough), _WetSmoothness, wet);
 
-                // Specular anti-aliasing (Kaplanyan/Tokuyoshi): widen the highlight where the
-                // normal is noisy. This is what removes the "glitter" on puddles.
+                
+                // normal is noisy. 
                 {
                     float r2 = (1.0 - smoothness) * (1.0 - smoothness);
                     r2 += min(0.5 * normalVariance * _ReflSoftness, 0.25);
@@ -289,7 +296,7 @@ Shader "Horror/WetFacilityFloorURP"
                 s.alpha = 1;
                 s.normalTS = half3(0, 0, 1);
 
-                // NOTE: must be named "inputData" because Forward+ light-loop macros refer to it.
+                
                 InputData inputData = (InputData)0;
                 inputData.positionWS = IN.positionWS;
                 inputData.positionCS = IN.positionHCS;
@@ -305,7 +312,14 @@ Shader "Horror/WetFacilityFloorURP"
                 half4 color = UniversalFragmentPBR(inputData, s);
                 color.rgb *= _LightGain;
 
-                // --- Mirror of the ceiling lights in wet areas ---
+                //  Power
+                color.rgb *= lerp(_UnpoweredBrightness, 1.0h, powerCurve);
+
+                half3 powerBaseLight =
+                    albedo * ao * _PowerTint.rgb * powerCurve * _PowerLightInfluence;
+                color.rgb += powerBaseLight;
+
+                //  Mirror of the ceiling lights in wet areas 
                 #if defined(_ADDITIONAL_LIGHTS)
                 if (wet > 0.02 && camDist < _ReflFadeDist)
                 {
@@ -321,7 +335,7 @@ Shader "Horror/WetFacilityFloorURP"
                         float2 hitFix  = P.xz + R.xz * tFix;
                         float2 hitCeil = P.xz + R.xz * tCeil;
 
-                        // blur grows with roughness and with how far the reflected ray travels
+                        // blur grows 
                         float soft = (0.06 + (1.0 - smoothness) * tFix * 0.5) * _ReflSoftness;
                         float2 halfSize = _FixtureHalfSize.xy;       // x = width, y = length (Z)
                         float poolR2 = max(_PoolRadius * _PoolRadius, 0.01);
@@ -350,7 +364,7 @@ Shader "Horror/WetFacilityFloorURP"
                             }
                         LIGHT_LOOP_END
 
-                        // Fresnel: stronger at grazing angles, but puddles stay clearly reflective head-on
+                        // Fresnel
                         float ndv = saturate(dot(normalWS, viewWS));
                         float fres = lerp(0.3, 1.0, pow(1.0 - ndv, 4.0));
                         float distFade = 1.0 - smoothstep(0.5, 1.0, camDist / _ReflFadeDist);
