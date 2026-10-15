@@ -12,6 +12,7 @@ public class KeypadScript : MonoBehaviour
     public AudioClip doorOpen;
     AudioSource audioSource;
     public Transform SafeDoor;
+    public KeypadInteraction keypadInteraction; 
     [Header("Echo Noise")]
     public EchoAI echo;
     public float objectNoiseRadius = 20f;
@@ -29,6 +30,14 @@ public class KeypadScript : MonoBehaviour
         {
             if (input == password)
             {
+                if (keypadInteraction != null)
+                {
+                    keypadInteraction.PuzzleComplete();
+                }
+                else
+                {
+                    Debug.LogError("KeypadInteraction is not assigned.");
+                }
                 Debug.Log("Correct Password");
                 SafeDoor.Rotate(Vector3.up * 120f);
                 audioSource.PlayOneShot(doorOpen);

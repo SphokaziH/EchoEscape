@@ -102,7 +102,7 @@ public class objPickup : Interactable
         objRigidbody.isKinematic = true;
 
         objTransform.SetParent(cameraTrans);
-        objTransform.localPosition = new Vector3(-0.15f, -0.05f, holdDistance);
+        objTransform.localPosition = new Vector3(-0.65f, -0.05f, holdDistance);
         objTransform.localRotation = Quaternion.identity;
     }
 

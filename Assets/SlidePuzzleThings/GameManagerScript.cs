@@ -11,6 +11,7 @@ public class GameManangerScript : MonoBehaviour
     private int size ;
   
     private List<Transform> pieces;
+    public SlidePuzzleInteraction slidePuzzleInteraction;
 
     private void CreateGamePiece(float gapThickness)
     {
@@ -110,7 +111,7 @@ public class GameManangerScript : MonoBehaviour
                 Debug.LogError("No Main Camera found.");
                 return;
             }
-         // Create a ray from the camera through the mouse position
+            // Create a ray from the camera through the mouse position
             Ray ray = cam.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
             // 3D raycast
@@ -123,8 +124,8 @@ public class GameManangerScript : MonoBehaviour
                         Debug.Log($"Clicked on a piece");
                         if (SwapIfValid(i, -size, size)) { break; }//moveup
                         if (SwapIfValid(i, +size, size)) { break; }//moveDown
-                        if (SwapIfValid(i, -1,0)) { break; }//moveLeft
-                        if (SwapIfValid(i, +1,size-1)) { break; }//moveRight
+                        if (SwapIfValid(i, -1, 0)) { break; }//moveLeft
+                        if (SwapIfValid(i, +1, size - 1)) { break; }//moveRight
                     }
                 }
             }
@@ -151,6 +152,18 @@ public class GameManangerScript : MonoBehaviour
         if (pieces[i].name != $"{i}")
         {
             return false;
+        } 
+        else if (Input.GetKeyDown(KeyCode.H))
+        {
+           if (slidePuzzleInteraction != null)
+             {
+               slidePuzzleInteraction.PuzzleComplete();
+             }
+           else
+             {
+               Debug.LogError("WirePuzzleInteraction is not assigned.");
+             }
+           return true;
         }
         return true;
     }
