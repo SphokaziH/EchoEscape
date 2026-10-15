@@ -2,21 +2,75 @@ using UnityEngine;
 
 public class Main : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    public int lightCount;
+    public int lightCount = 4;
+
+    public WirePuzzleInteraction wirePuzzleInteraction;
+
     private int onCount = 0;
-    static public Main Instance;
+
+    public static Main Instance;
+
+    private bool puzzleCompleted = false;
 
     void Awake()
     {
         Instance = this;
     }
+
     public void LightChange(int points)
     {
-        onCount= onCount+ points;
-        if (onCount == lightCount)
+        if (puzzleCompleted)
+            return;
+
+        onCount += points;
+
+        Debug.Log(
+            "Generator circuit progress: " +
+            onCount +
+            "/" +
+            lightCount
+        );
+
+        if (onCount >= lightCount)
         {
-            ///open door
+            CompletePuzzle();
         }
+    }
+
+    void CompletePuzzle()
+    {
+        if (puzzleCompleted)
+            return;
+
+        if (GameManager.instance == null)
+        {
+            Debug.LogError("GameManager could not be found.");
+            return;
+        }
+
+        if (GameManager.instance.powerNodesInstalled <
+            GameManager.instance.totalPowerNodes)
+        {
+            Debug.Log(
+                "Generator cannot activate. Install all Power Nodes first."
+            );
+
+            return;
+        }
+
+        puzzleCompleted = true;
+
+        if (wirePuzzleInteraction != null)
+        {
+            wirePuzzleInteraction.PuzzleComplete();
+        }
+        else
+        {
+            Debug.LogError("WirePuzzleInteraction is not assigned.");
+        }
+
+        Debug.Log(
+            "Generator circuit repaired. Facility power restored."
+        );
     }
 }
