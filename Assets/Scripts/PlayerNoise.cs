@@ -30,6 +30,7 @@ public class PlayerNoise : MonoBehaviour
 
     void Update()
     {
+        Debug.Log("PlayerNoise active");
         float movement =
             Vector3.Distance(
                 transform.position,
