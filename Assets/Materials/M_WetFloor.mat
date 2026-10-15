@@ -133,6 +133,7 @@ Material:
     - _ParallaxScale: 0.02
     - _PoolRadius: 2.5
     - _PoolStrength: 0.8
+    - _PowerLightInfluence: 1
     - _PuddleMeters: 20
     - _PulseMin: 0.08
     - _PulseSpeed: 1.2
@@ -153,6 +154,7 @@ Material:
     - _SrcBlendAlpha: 1
     - _Surface: 0
     - _TileMeters: 2
+    - _UnpoweredBrightness: 1
     - _WetDarken: 0.6
     - _WetSmoothness: 0.6
     - _WetnessAmount: 0.05
@@ -162,9 +164,10 @@ Material:
     - _ZWrite: 1
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
-    - _Color: {r: 0.2905661, g: 0.28585124, b: 0.26699185, a: 1}
-    - _EmissionColor: {r: 0.1764706, g: 0.16158716, b: 0.16078432, a: 1}
+    - _Color: {r: 0.6603774, g: 0.64990896, b: 0.61178356, a: 1}
+    - _EmissionColor: {r: 0.17647055, g: 0.16158712, b: 0.16078427, a: 1}
     - _FixtureHalfSize: {r: 0.075, g: 0.6, b: 0, a: 0}
+    - _PowerTint: {r: 0.554717, g: 0.52669936, b: 0.46365967, a: 1}
     - _RippleSpeed: {r: 0.05, g: 0.03, b: 0, a: 0}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
   m_BuildTextureStacks: []
