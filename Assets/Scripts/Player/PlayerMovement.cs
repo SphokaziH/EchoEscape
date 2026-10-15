@@ -1,6 +1,8 @@
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour{
+
+    PlayerFootsteps footsteps;
     public CharacterController controller;
     private Animator animator;  // creates a slot to hold the player's animator
 
@@ -54,6 +56,10 @@ public class PlayerMovement : MonoBehaviour{
         currentStamina = maxStamina;
 
         animator = GetComponentInChildren<Animator>(); //fills the slot only once, when the game starts
+
+        // player footsteps
+        footsteps = GetComponent<PlayerFootsteps>();
+        if (footsteps == null) footsteps = gameObject.AddComponent<PlayerFootsteps>();
     }
 
 void Update()
@@ -84,6 +90,10 @@ void Update()
         //keeps track of how fast the player is moving along the ground
         Vector3 flatVelocity = new Vector3(controller.velocity.x, 0f, controller.velocity.z);
         animator.SetFloat("Speed", flatVelocity.magnitude, 0.1f, Time.deltaTime);
+
+        //sprinting and crouching sounds
+        footsteps.isCrouching = state == MovementState.crouching;
+        footsteps.isSprinting = state == MovementState.sprinting;
 
         if (Input.GetButtonDown("Jump") && isGrounded){
             velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
