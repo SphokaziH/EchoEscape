@@ -164,10 +164,10 @@ Material:
     - _ZWrite: 1
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
-    - _Color: {r: 0.5698112, g: 0.56296235, b: 0.52358127, a: 1}
+    - _Color: {r: 0.6603774, g: 0.64990896, b: 0.61178356, a: 1}
     - _EmissionColor: {r: 0.17647055, g: 0.16158712, b: 0.16078427, a: 1}
     - _FixtureHalfSize: {r: 0.075, g: 0.6, b: 0, a: 0}
-    - _PowerTint: {r: 0.5924529, g: 0.56059456, b: 0.4862585, a: 1}
+    - _PowerTint: {r: 0.554717, g: 0.52669936, b: 0.46365967, a: 1}
     - _RippleSpeed: {r: 0.05, g: 0.03, b: 0, a: 0}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
   m_BuildTextureStacks: []
