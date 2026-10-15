@@ -1,11 +1,5 @@
 Shader "Horror/WetCeilingURP"
 {
-    // Grimy ceiling: water stains, rust at the stain edges, and a wet glossy halo
-    // around every sprinkler (positions come from FacilityDrips.cs).
-    //
-    // CHANGES: _LightGain scales direct lamp light, and _Bounce adds a half-lambert "bounce"
-    // so the ceiling between fixtures is lit by the lamps instead of staying black
-    // (the lamps hang just below the slab, so plain N.L is almost zero away from them).
     Properties
     {
         _MainTex        ("Albedo (RGB)", 2D) = "white" {}
@@ -25,6 +19,11 @@ Shader "Horror/WetCeilingURP"
         _DripHaloRadius ("Wet halo around sprinklers (meters)", Float) = 1.3
         _DrySmoothness  ("Dry Smoothness (x inverse roughness)", Range(0,1)) = 1
         _WetSmoothness  ("Wet Smoothness", Range(0,1)) = 0.9
+
+        [Header(Power)]
+        _PowerLightInfluence ("Power Base Light", Range(0,2)) = 1.0
+        _PowerTint           ("Power Tint", Color) = (0.82, 0.86, 0.80, 1)
+        _UnpoweredBrightness ("Unpowered Brightness (1 = unchanged)", Range(0,1)) = 1.0
 
         [Header(Lamp light on the ceiling)]
         _LightGain      ("Direct light gain", Range(0,8)) = 2
@@ -68,6 +67,7 @@ Shader "Horror/WetCeilingURP"
             CBUFFER_START(UnityPerMaterial)
                 float4 _Color;
                 float4 _RustColor;
+                float4 _PowerTint;
                 float _TileMeters;
                 float _NormalStrength;
                 float _AOStrength;
@@ -77,6 +77,8 @@ Shader "Horror/WetCeilingURP"
                 float _DripHaloRadius;
                 float _DrySmoothness;
                 float _WetSmoothness;
+                float _PowerLightInfluence;
+                float _UnpoweredBrightness;
                 float _LightGain;
                 float _Bounce;
             CBUFFER_END
@@ -85,6 +87,10 @@ Shader "Horror/WetCeilingURP"
             float4 _DripData[16];   // xy = world xz, z = period, w = phase
             float _DripCount;
             float _FacilityTime;
+
+            // Global power value, set by WallPower.cs (same one the walls and floor use).
+            // 0 = power off, 1 = fully restored.
+            float _WallPower;
 
             struct Attributes
             {
@@ -145,11 +151,6 @@ Shader "Horror/WetCeilingURP"
 
             half4 frag (Varyings IN) : SV_Target
             {
-                // STABLE world-space projection. The old version rebuilt the tangent frame from the
-                // per-pixel normal and then did dot(positionWS, T). On a curved pipe the normal
-                // rotates across the surface, and because positionWS can be tens of metres from
-                // the origin, that tiny rotation was multiplied into huge UV jumps = glitter.
-                // Here the projection axes are fixed world axes, picked by the dominant normal axis.
                 float3 N = normalize(IN.normalWS);
                 float3 aN = abs(N);
                 float3 axT;
@@ -176,14 +177,18 @@ Shader "Horror/WetCeilingURP"
 
                 float2 uv = pw / _TileMeters;
 
-                // --- Water stains with rusty edges ---
+                //  Power 
+                half power = saturate(_WallPower);
+                half powerCurve = power * power * (3.0h - 2.0h * power);
+
+                //  Water stains with rusty edges 
                 float n1 = FBM(pw / _StainScale);
                 float n2 = FBM(pw * 2.3 + 17.0);
                 float stain = smoothstep(0.62 - _StainAmount * 0.25, 0.78 - _StainAmount * 0.25, n1);
                 float edge = stain * (1.0 - stain) * 4.0;
                 float rust = saturate(edge * smoothstep(0.35, 0.7, n2));
 
-                // --- Wet halo around each sprinkler ---
+                //  Wet halo around each sprinkler 
                 float halo = 0.0;
                 int dn = (int)_DripCount;
                 [loop] for (int i = 0; i < dn; i++)
@@ -193,22 +198,22 @@ Shader "Horror/WetCeilingURP"
                 }
                 float wetC = saturate(max(stain * 0.55, halo));
 
-                // --- Normal ---
+                //  Normal 
                 half3 nTS = UnpackNormal(SAMPLE_TEXTURE2D(_BumpMap, sampler_BumpMap, uv));
                 nTS.xy *= _NormalStrength;
-                // slick, uneven wet surface: fine noise, so it fades out with distance (it aliases there)
+                // slick, uneven wet surface: fine noise
                 float camD = distance(IN.positionWS, _WorldSpaceCameraPos);
                 float noiseFade = saturate(1.0 - camD / 12.0);
                 nTS.xy += (VNoise(pw * 6.0 + _FacilityTime * 0.05) - 0.5) * 0.15 * wetC * noiseFade;
                 nTS = normalize(nTS);
                 float3 normalWS = normalize(mul(nTS, TBN));
 
-                // How fast the normal changes between neighbouring pixels (used for specular AA below).
+                // How fast the normal changes 
                 float3 dnx = ddx(normalWS);
                 float3 dny = ddy(normalWS);
                 float normalVariance = dot(dnx, dnx) + dot(dny, dny);
 
-                // --- Albedo / smoothness / AO ---
+                //  Albedo / smoothness / AO 
                 half3 albedo = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uv).rgb * _Color.rgb;
                 albedo *= lerp(1.0, 0.45, stain);
                 albedo = lerp(albedo, _RustColor.rgb, saturate(rust * 0.7));
@@ -217,8 +222,6 @@ Shader "Horror/WetCeilingURP"
                 half rough = SAMPLE_TEXTURE2D(_RoughnessMap, sampler_RoughnessMap, uv).r;
                 half smoothness = lerp(_DrySmoothness * (1.0 - rough), _WetSmoothness, wetC);
 
-                // Specular anti-aliasing: widen highlights where the normal changes quickly
-                // between pixels (thin curved pipes, distance). Removes the sparkle.
                 {
                     float r2 = (1.0 - smoothness) * (1.0 - smoothness);
                     r2 += min(0.5 * normalVariance * 1.5, 0.25);
@@ -252,8 +255,8 @@ Shader "Horror/WetCeilingURP"
                 half4 color = UniversalFragmentPBR(inputData, s);
                 color.rgb *= _LightGain;
 
-                // Bounce: half-lambert from every lamp, so the slab between and around the
-                // fixtures picks up their colour (red alarm wash, white restore flicker).
+                // Bounce
+                
                 half3 bounce = half3(0, 0, 0);
                 #if defined(_ADDITIONAL_LIGHTS)
                     uint pixelLightCount = GetAdditionalLightsCount();
@@ -265,6 +268,13 @@ Shader "Horror/WetCeilingURP"
                     LIGHT_LOOP_END
                 #endif
                 color.rgb += bounce * albedo * ao * _Bounce;
+
+                //  Power: dim while unpowered, add base facility light when restored 
+                color.rgb *= lerp(_UnpoweredBrightness, 1.0h, powerCurve);
+
+                half3 powerBaseLight =
+                    albedo * ao * _PowerTint.rgb * powerCurve * _PowerLightInfluence;
+                color.rgb += powerBaseLight;
 
                 color.rgb = MixFog(color.rgb, IN.fogFactor);
                 return half4(color.rgb, 1);
