@@ -84,6 +84,7 @@ public class GameManangerScript : MonoBehaviour
         size = 3;
         CreateGamePiece(0.03f);
         Shuffle();
+        piecePrefab.GetComponent<MeshRenderer>().enabled = false;
     }
     private void Update()
     {
