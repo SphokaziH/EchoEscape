@@ -46,7 +46,7 @@ public class SlidePuzzleInteraction : Interactable
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
 
-        Debug.Log("Wire puzzle started.");
+        Debug.Log("Slide puzzle started.");
     }
 
     public void PuzzleComplete()

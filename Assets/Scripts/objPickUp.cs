@@ -10,7 +10,7 @@ public class objPickup : Interactable
     [Header("Interaction Settings")]
     public float interactionDistance = 3f;
     public float holdDistance = 0.5f;
-    public float throwAmount = 10f;
+    public float throwAmount = 2f;
 
     [Header("Throw Sound")]
     [Tooltip("Attach an AudioSource to the object and assign a short throw/impact sound clip.")]
@@ -102,7 +102,7 @@ public class objPickup : Interactable
         objRigidbody.isKinematic = true;
 
         objTransform.SetParent(cameraTrans);
-        objTransform.localPosition = new Vector3(-0.15f, -0.05f, holdDistance);
+        objTransform.localPosition = new Vector3(-0.65f, -0.05f, holdDistance);
         objTransform.localRotation = Quaternion.identity;
     }
 
