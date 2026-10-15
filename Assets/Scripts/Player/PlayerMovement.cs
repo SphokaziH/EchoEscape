@@ -95,10 +95,6 @@ void Update()
         footsteps.isCrouching = state == MovementState.crouching;
         footsteps.isSprinting = state == MovementState.sprinting;
 
-        if (Input.GetButtonDown("Jump") && isGrounded){
-            velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
-        }
-
         bool isCrouching = Input.GetKey(crouchKey);
         animator.SetBool("isCrouching", isCrouching); //switches the animator between standing and crouching animations
 
@@ -120,8 +116,8 @@ void Update()
 
         currentStamina =Mathf.Clamp(currentStamina, 0f, maxStamina);
 
-        velocity.y += gravity * Time.deltaTime;
-        controller.Move(velocity * Time.deltaTime);
+        //velocity.y += gravity * Time.deltaTime;
+        //controller.Move(velocity * Time.deltaTime);
     }
 
     void StateHandler(bool isMoving){
