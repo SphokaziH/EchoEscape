@@ -10732,8 +10732,16 @@ PrefabInstance:
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 8894602587366163917, guid: 7cbe8d50075a8274f8913cc5881d1b3f, type: 3}
+      propertyPath: huntSpeed
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 8894602587366163917, guid: 7cbe8d50075a8274f8913cc5881d1b3f, type: 3}
       propertyPath: patrolGlow
       value: 0.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 8894602587366163917, guid: 7cbe8d50075a8274f8913cc5881d1b3f, type: 3}
+      propertyPath: patrolSpeed
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 8894602587366163917, guid: 7cbe8d50075a8274f8913cc5881d1b3f, type: 3}
       propertyPath: echoMaterial
@@ -28310,6 +28318,14 @@ PrefabInstance:
       value: Player
       objectReference: {fileID: 0}
     - target: {fileID: 3985004922323998471, guid: a9634665149bfa24ab16704473334b0d, type: 3}
+      propertyPath: walkSpeed
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 3985004922323998471, guid: a9634665149bfa24ab16704473334b0d, type: 3}
+      propertyPath: isGrounded
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3985004922323998471, guid: a9634665149bfa24ab16704473334b0d, type: 3}
       propertyPath: groundMask.m_Bits
       value: 1
       objectReference: {fileID: 0}
@@ -28377,6 +28393,18 @@ PrefabInstance:
       propertyPath: echo
       value: 
       objectReference: {fileID: 1384380699}
+    - target: {fileID: 8575266576547335247, guid: a9634665149bfa24ab16704473334b0d, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8575266576547335247, guid: a9634665149bfa24ab16704473334b0d, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8575266576547335247, guid: a9634665149bfa24ab16704473334b0d, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 7316101120771869727, guid: a9634665149bfa24ab16704473334b0d, type: 3}
     - {fileID: 5103008231642898060, guid: a9634665149bfa24ab16704473334b0d, type: 3}
@@ -77714,7 +77742,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: 75d465c25116cdd4e8827df7dff00d30, type: 3}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
   Loop: 0
