@@ -9,9 +9,12 @@ public class KeypadScript : MonoBehaviour
 
     public AudioClip clickSound;
     public AudioClip wrongEntry;
+    public AudioClip doorOpen;
     AudioSource audioSource;
-
-    public UnityEvent OpenDoor;
+    public Transform SafeDoor;
+    [Header("Echo Noise")]
+    public EchoAI echo;
+    public float objectNoiseRadius = 20f;
 
     public void Start()
     {
@@ -27,13 +30,17 @@ public class KeypadScript : MonoBehaviour
             if (input == password)
             {
                 Debug.Log("Correct Password");
-                OpenDoor.Invoke();
+                SafeDoor.Rotate(Vector3.up * 120f);
+                audioSource.PlayOneShot(doorOpen);
             }
             else
             {
                 Debug.Log("Incorrect Password");
                 audioSource.PlayOneShot(wrongEntry);
                 input = "";
+                // Notify Echo once per throw rather than calling it every frame.
+                if (echo != null)
+                    echo.HearNoise(this.transform.position, objectNoiseRadius);
             }
         }
     }
