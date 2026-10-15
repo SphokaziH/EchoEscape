@@ -18,15 +18,19 @@ public class EchoAI : MonoBehaviour
     public Animator animator;
 
     [Header("Detection")]
-    public float detectionRange = 10f;
+    public float closeRangeDetection = 2.5f;
     public float losePlayerRange = 15f;
+    public float catchDistance = 2.5f;
+
+    [Header("Hearing")]
+    public float huntNoiseThreshold = 15f;
 
     [Header("Movement")]
     public float patrolSpeed = 2f;
     public float huntSpeed = 5f;
 
     [Header("Investigation")]
-    public float investigationTime = 3f;
+    public float investigationTime = 4f;
 
     [Header("Shader")]
     public float patrolGlow = 0.7f;
@@ -42,13 +46,16 @@ public class EchoAI : MonoBehaviour
     void Start()
     {
         if (agent == null)
+        {
             agent = GetComponent<NavMeshAgent>();
+        }
 
         GoToNextPatrolPoint();
     }
 
     void Update()
     {
+        CheckCloseRange();
 
         switch (currentState)
         {
@@ -69,26 +76,56 @@ public class EchoAI : MonoBehaviour
         UpdateShader();
     }
 
+    void CheckCloseRange()
+    {
+        if (player == null)
+            return;
+
+        float distanceToPlayer =
+            Vector3.Distance(
+                transform.position,
+                player.position
+            );
+
+        if (distanceToPlayer <= closeRangeDetection &&
+            currentState != EchoState.Hunt)
+        {
+            Debug.Log("Player detected at close range -> HUNT");
+
+            StartHunt();
+        }
+    }
+
     void Patrol()
     {
         agent.speed = patrolSpeed;
-
-        if (player != null)
-        {
-            float distanceToPlayer =
-                Vector3.Distance(transform.position, player.position);
-
-            if (distanceToPlayer <= detectionRange)
-            {
-                currentState = EchoState.Hunt;
-                return;
-            }
-        }
 
         if (!agent.pathPending &&
             agent.remainingDistance <= agent.stoppingDistance)
         {
             GoToNextPatrolPoint();
+        }
+    }
+
+    void InvestigateState()
+    {
+        agent.speed = patrolSpeed;
+
+        if (agent.pathPending)
+            return;
+
+        if (agent.remainingDistance <= agent.stoppingDistance)
+        {
+            investigationTimer -= Time.deltaTime;
+
+            if (investigationTimer <= 0f)
+            {
+                Debug.Log("Investigation finished -> PATROL");
+
+                currentState = EchoState.Patrol;
+
+                GoToNextPatrolPoint();
+            }
         }
     }
 
@@ -101,54 +138,90 @@ public class EchoAI : MonoBehaviour
         agent.SetDestination(player.position);
 
         float distanceToPlayer =
-            Vector3.Distance(transform.position, player.position);
+            Vector3.Distance(
+                transform.position,
+                player.position
+            );
 
+        // Temporary debug so we can see the real distance
+        Debug.Log(
+            "HUNT distance to player: " +
+            distanceToPlayer
+        );
+
+        // Echo catches the player
+        if (distanceToPlayer <= catchDistance)
+        {
+            Debug.Log(
+                "Echo caught the player -> GAME OVER"
+            );
+
+            agent.isStopped = true;
+
+            if (GameManager.instance != null)
+            {
+                GameManager.instance.GameOver();
+            }
+            else
+            {
+                Debug.LogError(
+                    "GameManager instance was not found."
+                );
+            }
+
+            return;
+        }
+
+        // Player escapes far enough away
         if (distanceToPlayer > losePlayerRange)
         {
+            Debug.Log(
+                "Echo lost player -> INVESTIGATE"
+            );
+
             investigationPosition = player.position;
             investigationTimer = investigationTime;
 
             currentState = EchoState.Investigate;
-            agent.SetDestination(investigationPosition);
+
+            agent.speed = patrolSpeed;
+
+            agent.SetDestination(
+                investigationPosition
+            );
         }
     }
 
-    void InvestigateState()
+    void StartHunt()
     {
-        agent.speed = patrolSpeed;
+        if (player == null)
+            return;
 
-        if (player != null)
-        {
-            float distanceToPlayer =
-                Vector3.Distance(transform.position, player.position);
+        agent.isStopped = false;
 
-            if (distanceToPlayer <= detectionRange)
-            {
-                currentState = EchoState.Hunt;
-                return;
-            }
-        }
+        currentState = EchoState.Hunt;
 
-        if (!agent.pathPending &&
-            agent.remainingDistance <= agent.stoppingDistance)
-        {
-            investigationTimer -= Time.deltaTime;
+        agent.speed = huntSpeed;
 
-            if (investigationTimer <= 0f)
-            {
-                currentState = EchoState.Patrol;
-                GoToNextPatrolPoint();
-            }
-        }
+        agent.SetDestination(
+            player.position
+        );
     }
 
     void GoToNextPatrolPoint()
     {
-        if (patrolPoints == null || patrolPoints.Length == 0)
+        if (patrolPoints == null ||
+            patrolPoints.Length == 0)
+        {
             return;
+        }
+
+        agent.isStopped = false;
+        agent.speed = patrolSpeed;
 
         agent.SetDestination(
-            patrolPoints[currentPatrolPoint].position);
+            patrolPoints[currentPatrolPoint].position
+        );
 
         currentPatrolPoint++;
 
@@ -158,61 +231,130 @@ public class EchoAI : MonoBehaviour
         }
     }
 
-    public void HearNoise(Vector3 position, float noiseRadius)
+    public void HearNoise(
+        Vector3 position,
+        float noiseRadius
+    )
     {
-        float distanceToNoise = Vector3.Distance(transform.position, position);
+        float distanceToNoise =
+            Vector3.Distance(
+                transform.position,
+                position
+            );
 
-        Debug.Log("Distance to noise: " + distanceToNoise +
-                  " | Noise radius: " + noiseRadius);
-
-        if (distanceToNoise <= noiseRadius)
+        // Echo cannot hear noises outside their radius
+        if (distanceToNoise > noiseRadius)
         {
-            Debug.Log("Echo heard the noise");
+            return;
+        }
 
-            Investigate(position);
-        }
-        else
+        // Do not interrupt an active hunt
+        if (currentState == EchoState.Hunt)
         {
-            Debug.Log("Echo did NOT hear the noise");
+            return;
         }
+
+        // Loud noises immediately cause Hunt
+        if (noiseRadius >= huntNoiseThreshold)
+        {
+            Debug.Log(
+                "LOUD NOISE -> HUNT | Distance: " +
+                distanceToNoise +
+                " | Noise Radius: " +
+                noiseRadius
+            );
+
+            StartHunt();
+
+            return;
+        }
+
+        // Normal noises cause Investigate
+        Debug.Log(
+            "NOISE -> INVESTIGATE | Distance: " +
+            distanceToNoise +
+            " | Noise Radius: " +
+            noiseRadius
+        );
+
+        Investigate(position);
     }
 
     public void Investigate(Vector3 position)
     {
+        if (currentState == EchoState.Hunt)
+        {
+            return;
+        }
+
+        // Remember where the sound happened
         investigationPosition = position;
+
+        // Reset the investigation timer
         investigationTimer = investigationTime;
 
         currentState = EchoState.Investigate;
-        agent.SetDestination(investigationPosition);
+
+        agent.isStopped = false;
+        agent.speed = patrolSpeed;
+
+        // Move to the sound location
+        agent.SetDestination(
+            investigationPosition
+        );
     }
 
     void UpdateAnimation()
     {
-        if (animator == null || agent == null)
+        if (animator == null ||
+            agent == null)
+        {
             return;
+        }
 
-        bool isWalking = agent.velocity.magnitude > 0.1f;
+        bool isWalking =
+            agent.velocity.magnitude > 0.1f;
 
-        animator.SetBool("IsWalking", isWalking);
+        animator.SetBool(
+            "IsWalking",
+            isWalking
+        );
     }
 
     void UpdateShader()
     {
         if (echoMaterial == null)
+        {
             return;
+        }
 
         switch (currentState)
         {
             case EchoState.Patrol:
-                echoMaterial.SetFloat("_GlowStrength", patrolGlow);
+
+                echoMaterial.SetFloat(
+                    "_GlowStrength",
+                    patrolGlow
+                );
+
                 break;
 
             case EchoState.Investigate:
-                echoMaterial.SetFloat("_GlowStrength", investigateGlow);
+
+                echoMaterial.SetFloat(
+                    "_GlowStrength",
+                    investigateGlow
+                );
+
                 break;
 
             case EchoState.Hunt:
-                echoMaterial.SetFloat("_GlowStrength", huntGlow);
+
+                echoMaterial.SetFloat(
+                    "_GlowStrength",
+                    huntGlow
+                );
+
                 break;
         }
     }

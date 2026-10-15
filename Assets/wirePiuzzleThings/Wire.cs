@@ -1,5 +1,3 @@
-using System.Collections;
-using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -7,64 +5,132 @@ public class Wire : MonoBehaviour
 {
     Vector3 startPoint;
     Vector3 startPosition;
-    public SpriteRenderer wireEnd;
+
+    public LineRenderer wireLine;
     public GameObject lightOn;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+
+    public float wireRadius = 0.2f;
+
+    private bool connected = false;
+
     void Start()
     {
-        startPoint = transform.parent.position;
-        startPosition= transform.position;
+        startPosition = transform.position;
+
+        Transform wireStart = transform.parent.Find("Wire_start");
+
+        if (wireStart != null)
+        {
+            startPoint = wireStart.position;
+        }
+        else
+        {
+            startPoint = transform.parent.position;
+
+            Debug.LogWarning(
+                "Wire_start not found for " + gameObject.name
+            );
+        }
+
+        if (wireLine != null)
+        {
+            wireLine.positionCount = 2;
+            wireLine.useWorldSpace = true;
+
+            wireLine.SetPosition(0, startPoint);
+            wireLine.SetPosition(1, startPosition);
+        }
     }
 
-    // Update is called once per frame
     private void OnMouseDrag()
     {
-        Vector2 mousePosition2D =Mouse.current.position.ReadValue();
-        Vector3 mousePosition3D = new Vector3(mousePosition2D.x, mousePosition2D.y, 0);
-        Vector3 newPosition = Camera.main.ScreenToWorldPoint(mousePosition3D);
-        newPosition.z = 0;
+        if (connected || Camera.main == null || Mouse.current == null)
+            return;
 
-        Collider2D[] colliders = Physics2D.OverlapCircleAll(newPosition, .2f);
-        foreach (Collider2D collider in colliders)
+        Vector2 mousePosition =
+            Mouse.current.position.ReadValue();
+
+        Ray ray =
+            Camera.main.ScreenPointToRay(mousePosition);
+
+        Plane wirePlane =
+            new Plane(Vector3.forward, startPoint);
+
+        float distance;
+
+        if (wirePlane.Raycast(ray, out distance))
         {
-            if(collider.gameObject != gameObject)
+            Vector3 newPosition = ray.GetPoint(distance);
+
+            Collider[] colliders =
+                Physics.OverlapSphere(newPosition, wireRadius);
+
+            foreach (Collider collider in colliders)
             {
-                UpdateWire(collider.transform.position);
+                if (collider.gameObject == gameObject)
+                    continue;
 
-                if(transform.transform.name.Equals(collider.transform.parent.name))
+                if (collider.transform.parent == null)
+                    continue;
+
+                if (transform.parent.name ==
+                    collider.transform.parent.name)
                 {
+                    Wire otherWire =
+                        collider.GetComponent<Wire>();
 
-                    Main.Instance.LightChange(1);
-                    collider.GetComponent<Wire>()?.Done();
+                    if (otherWire == null || otherWire == this || otherWire.connected)
+                        continue;
 
-                    Done();   
+                    Vector3 connectionPosition =
+                        collider.transform.position;
+
+                    connectionPosition.z = startPosition.z;
+
+                    UpdateWire(connectionPosition);
+
+                    connected = true;
+
+                    otherWire.Done();
+                    Done();
+
+                    if (Main.Instance != null)
+                        Main.Instance.LightChange(1);
+
+                    return;
                 }
-                return;
             }
-        }
-        UpdateWire(startPosition);
 
+            UpdateWire(newPosition);
+        }
     }
 
     private void OnMouseUp()
     {
-        UpdateWire(startPosition);
+        if (!connected)
+            UpdateWire(startPosition);
     }
+
     void UpdateWire(Vector3 newPosition)
     {
         transform.position = newPosition;
 
-        Vector3 direction = newPosition - startPoint;
-        transform.right = direction * transform.lossyScale.x;
-
-        float dist = Vector2.Distance(startPoint, newPosition);
-        wireEnd.size = new Vector2(dist, wireEnd.size.y);
+        if (wireLine != null)
+        {
+            wireLine.SetPosition(0, startPoint);
+            wireLine.SetPosition(1, newPosition);
+        }
     }
+    
 
     void Done()
     {
-        lightOn.SetActive(true);
-        Destroy(this);
-        
+        connected = true;
+
+        if (lightOn != null)
+            lightOn.SetActive(true);
+
+        if (wireLine != null)
+            wireLine.enabled = true;
     }
 }
