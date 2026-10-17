@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -7,23 +6,32 @@ public class GameManangerScript : MonoBehaviour
     [SerializeField] private Transform gameTransform;
     [SerializeField] private Transform piecePrefab;
     [SerializeField] private DoorController doorController;
-    private int emptyLocation;
-    private int size ;
-  
-    private List<Transform> pieces;
     public SlidePuzzleInteraction slidePuzzleInteraction;
+
+    private int emptyLocation;
+    private int size;
+
+    private List<Transform> pieces;
+
+    private bool puzzleCompleted = false;
 
     private void CreateGamePiece(float gapThickness)
     {
-        float width = 1 / (float)size;
+        float width = 1f / size;
+
         for (int row = 0; row < size; row++)
         {
             for (int col = 0; col < size; col++)
             {
                 Transform piece = Instantiate(piecePrefab, gameTransform);
                 pieces.Add(piece);
-                piece.localPosition = new Vector3(-1f + (2f * width * col) + width,
-                                                 1f-(2f * width * row) - width, 0f);
+
+                piece.localPosition = new Vector3(
+                    -1f + (2f * width * col) + width,
+                    1f - (2f * width * row) - width,
+                    0f
+                );
+
                 float pieceSize = (2f * width) - gapThickness;
 
                 piece.localScale = new Vector3(
@@ -31,9 +39,12 @@ public class GameManangerScript : MonoBehaviour
                     pieceSize,
                     1f
                 );
-                piece.name = $"{(row*size)+col}";
+
+                piece.name = $"{(row * size) + col}";
+
                 SetPieceUV(piece, row, col);
-                if ((row == size - 1) && (col == size - 1))
+
+                if (row == size - 1 && col == size - 1)
                 {
                     emptyLocation = (size * size) - 1;
                     piece.gameObject.SetActive(false);
@@ -41,7 +52,7 @@ public class GameManangerScript : MonoBehaviour
             }
         }
     }
-  // SET IMAGE SECTION FOR EACH PIECE
+
     private void SetPieceUV(Transform piece, int row, int col)
     {
         MeshFilter meshFilter = piece.GetComponent<MeshFilter>();
@@ -51,49 +62,54 @@ public class GameManangerScript : MonoBehaviour
             Debug.LogError("PuzzlePiece needs a MeshFilter.");
             return;
         }
+
         Mesh mesh = meshFilter.mesh;
 
-        // CALCULATE UV COORDINATES
         float uvWidth = 1f / size;
         float uvHeight = 1f / size;
 
         float uMin = col * uvWidth;
         float uMax = (col + 1) * uvWidth;
 
-        // Unity UV coordinates start from the bottom
-        // while our puzzle rows start from the top.
         float vMax = 1f - (row * uvHeight);
         float vMin = 1f - ((row + 1) * uvHeight);
 
-        // APPLY UV COORDINATES TO QUAD
         Vector2[] uv = new Vector2[mesh.uv.Length];
 
         for (int i = 0; i < mesh.uv.Length; i++)
         {
             Vector2 originalUV = mesh.uv[i];
 
-            float u = Mathf.Lerp(uMin,uMax,originalUV.x);
+            float u = Mathf.Lerp(uMin, uMax, originalUV.x);
             float v = Mathf.Lerp(vMin, vMax, originalUV.y);
+
             uv[i] = new Vector2(u, v);
         }
-         mesh.uv = uv;
+
+        mesh.uv = uv;
     }
-    
+
     void Start()
     {
         pieces = new List<Transform>();
+
         size = 3;
+
         CreateGamePiece(0.03f);
+
         Shuffle();
+
         piecePrefab.GetComponent<MeshRenderer>().enabled = false;
     }
-    private void Update()
+
+    void Update()
     {
-        //Check completion
-        if (CheckCompletion())
+        if (!puzzleCompleted && CheckCompletion())
         {
+            puzzleCompleted = true;
+
             Debug.Log("Puzzle Completed");
-            //OPEN DOOR AND START COUNTDOWN
+
             if (doorController != null)
             {
                 doorController.OpenDoor();
@@ -102,30 +118,42 @@ public class GameManangerScript : MonoBehaviour
             {
                 Debug.LogError("Door Controller has not been assigned!");
             }
+
+            if (slidePuzzleInteraction != null)
+            {
+                slidePuzzleInteraction.PuzzleComplete();
+            }
+            else
+            {
+                Debug.LogError("SlidePuzzleInteraction is not assigned.");
+            }
         }
+
         if (Input.GetMouseButtonDown(0))
         {
             Camera cam = Camera.main;
+
             if (cam == null)
             {
                 Debug.LogError("No Main Camera found.");
                 return;
             }
-            // Create a ray from the camera through the mouse position
+
             Ray ray = cam.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
-            // 3D raycast
+
             if (Physics.Raycast(ray, out hit))
             {
                 for (int i = 0; i < pieces.Count; i++)
                 {
                     if (pieces[i] == hit.transform)
                     {
-                        Debug.Log($"Clicked on a piece");
-                        if (SwapIfValid(i, -size, size)) { break; }//moveup
-                        if (SwapIfValid(i, +size, size)) { break; }//moveDown
-                        if (SwapIfValid(i, -1, 0)) { break; }//moveLeft
-                        if (SwapIfValid(i, +1, size - 1)) { break; }//moveRight
+                        Debug.Log("Clicked on a piece");
+
+                        if (SwapIfValid(i, -size, size)) break;
+                        if (SwapIfValid(i, +size, size)) break;
+                        if (SwapIfValid(i, -1, 0)) break;
+                        if (SwapIfValid(i, +1, size - 1)) break;
                     }
                 }
             }
@@ -136,52 +164,55 @@ public class GameManangerScript : MonoBehaviour
     {
         if (((i % size) != colCheck) && ((i + offset) == emptyLocation))
         {
-            (pieces[i], pieces[i + offset]) = (pieces[i + offset], pieces[i]);
+            (pieces[i], pieces[i + offset]) =
+                (pieces[i + offset], pieces[i]);
 
             (pieces[i].localPosition, pieces[i + offset].localPosition) =
                 (pieces[i + offset].localPosition, pieces[i].localPosition);
 
             emptyLocation = i;
+
             return true;
         }
+
         return false;
     }
+
     private bool CheckCompletion()
     {
-       for(int i =0; i< pieces.Count; i++)
-        if (pieces[i].name != $"{i}")
+        for (int i = 0; i < pieces.Count; i++)
         {
-            return false;
-        } 
-        else if (Input.GetKeyDown(KeyCode.H))
-        {
-           if (slidePuzzleInteraction != null)
-             {
-               slidePuzzleInteraction.PuzzleComplete();
-             }
-           else
-             {
-               Debug.LogError("WirePuzzleInteraction is not assigned.");
-             }
-           return true;
+            if (pieces[i].name != $"{i}")
+            {
+                return false;
+            }
         }
+
         return true;
     }
+
     private void Shuffle()
     {
         int count = 0;
         int last = -1;
-         while(count < (size * size * size))
+
+        while (count < (size * size * size))
         {
             int rand = Random.Range(0, size * size);
-            if(rand == last) { continue; }
+
+            if (rand == last)
+                continue;
+
             last = emptyLocation;
+
             if (SwapIfValid(rand, -size, size))
-            {count++; }
-            else if(SwapIfValid( rand, +size, size)) { count++; }
-            else if(SwapIfValid(rand, -1, 0)) { count++; }
-            else if (SwapIfValid(rand, +1, size - 1)) { count++; }
+                count++;
+            else if (SwapIfValid(rand, +size, size))
+                count++;
+            else if (SwapIfValid(rand, -1, 0))
+                count++;
+            else if (SwapIfValid(rand, +1, size - 1))
+                count++;
         }
     }
 }
-

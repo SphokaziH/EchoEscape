@@ -7281,6 +7281,7 @@ GameObject:
   m_Component:
   - component: {fileID: 155536959}
   - component: {fileID: 155536960}
+  - component: {fileID: 155536961}
   m_Layer: 0
   m_Name: Lamp_Red
   m_TagString: Untagged
@@ -7368,6 +7369,35 @@ Light:
   m_LightUnit: 1
   m_LuxAtDistance: 1
   m_EnableSpotReflector: 1
+--- !u!114 &155536961
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 155536958}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalLightData
+  m_UsePipelineSettings: 1
+  m_AdditionalLightsShadowResolutionTier: 2
+  m_CustomShadowLayers: 0
+  m_LightCookieSize: {x: 1, y: 1}
+  m_LightCookieOffset: {x: 0, y: 0}
+  m_SoftShadowQuality: 0
+  m_RenderingLayersMask:
+    serializedVersion: 0
+    m_Bits: 1
+  m_ShadowRenderingLayersMask:
+    serializedVersion: 0
+    m_Bits: 1
+  m_Version: 4
+  m_LightLayerMask: 1
+  m_ShadowLayerMask: 1
+  m_RenderingLayers: 1
+  m_ShadowRenderingLayers: 1
 --- !u!1 &157364009
 GameObject:
   m_ObjectHideFlags: 0
@@ -28319,7 +28349,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3985004922323998471, guid: a9634665149bfa24ab16704473334b0d, type: 3}
       propertyPath: walkSpeed
-      value: 4
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 3985004922323998471, guid: a9634665149bfa24ab16704473334b0d, type: 3}
       propertyPath: isGrounded
@@ -28410,7 +28440,13 @@ PrefabInstance:
     - {fileID: 5103008231642898060, guid: a9634665149bfa24ab16704473334b0d, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 2674024105468881381, guid: a9634665149bfa24ab16704473334b0d, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2049934030}
+    - targetCorrespondingSourceObject: {fileID: 2674024105468881381, guid: a9634665149bfa24ab16704473334b0d, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2049934031}
   m_SourcePrefab: {fileID: 100100000, guid: a9634665149bfa24ab16704473334b0d, type: 3}
 --- !u!1001 &553835305
 PrefabInstance:
@@ -44993,6 +45029,11 @@ PrefabInstance:
 Transform:
   m_CorrespondingSourceObject: {fileID: 2774220344278030320, guid: db5d039e266caef41a636ab52a48533f, type: 3}
   m_PrefabInstance: {fileID: 868533023}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &873858735 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2674024105468881381, guid: a9634665149bfa24ab16704473334b0d, type: 3}
+  m_PrefabInstance: {fileID: 549248248}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &874823801
 GameObject:
@@ -67772,7 +67813,7 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 3985004922323998471, guid: a9634665149bfa24ab16704473334b0d, type: 3}
   m_PrefabInstance: {fileID: 549248248}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 873858735}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e22cd849a45e1b5429fc32eff347b77a, type: 3}
@@ -100627,6 +100668,125 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 5053954486744413568, guid: a9634665149bfa24ab16704473334b0d, type: 3}
   m_PrefabInstance: {fileID: 549248248}
   m_PrefabAsset: {fileID: 0}
+--- !u!95 &2049934030
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 873858735}
+  m_Enabled: 1
+  m_Avatar: {fileID: 9000000, guid: 45353b44088ade842b49a9796a3bfed4, type: 3}
+  m_Controller: {fileID: 9100000, guid: e2101d6fcc6083d46bb1e27dded5910a, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
+--- !u!82 &2049934031
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 873858735}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 0}
+  m_PlayOnAwake: 1
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &2050273388
 GameObject:
   m_ObjectHideFlags: 0
